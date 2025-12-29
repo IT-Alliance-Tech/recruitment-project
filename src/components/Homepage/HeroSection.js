@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { ArrowRight, Users, Calendar, FileText, BarChart3 } from "lucide-react";
 
 export default function HeroSection() {
@@ -36,15 +37,25 @@ export default function HeroSection() {
 
             {/* Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              <button className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-teal-500 hover:bg-teal-600 transition font-semibold shadow-lg w-full sm:w-auto">
+              
+              {/* Book Consultation → Schedule Page */}
+              <Link
+                href="/schedule"
+                className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-teal-500 hover:bg-teal-600 transition font-semibold shadow-lg w-full sm:w-auto"
+              >
                 <Calendar className="w-5 h-5" />
                 Book Consultation
-              </button>
+              </Link>
 
-              <button className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl border border-white/30 hover:bg-white/10 transition font-semibold w-full sm:w-auto">
+              {/* Learn More → Services Page */}
+              <Link
+                href="/services"
+                className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl border border-white/30 hover:bg-white/10 transition font-semibold w-full sm:w-auto"
+              >
                 Learn More
                 <ArrowRight className="w-5 h-5" />
-              </button>
+              </Link>
+
             </div>
 
             {/* Stats */}
@@ -68,15 +79,14 @@ export default function HeroSection() {
           <div className="relative hidden lg:block">
             <div className="grid grid-cols-2 gap-4">
               {[
-                { icon: Users, title: "Candidate Pipeline", desc: "Track applicants through every stage", delay: "0s" },
-                { icon: BarChart3, title: "Client Tracking", desc: "Manage all your clients in one place", delay: "0.1s" },
-                { icon: FileText, title: "Resume Upload", desc: "Easy document management", delay: "0.2s" },
-                { icon: Calendar, title: "Interview Scheduling", desc: "Seamless calendar integration", delay: "0.3s" },
+                { icon: Users, title: "Candidate Pipeline", desc: "Track applicants through every stage" },
+                { icon: BarChart3, title: "Client Tracking", desc: "Manage all your clients in one place" },
+                { icon: FileText, title: "Resume Upload", desc: "Easy document management" },
+                { icon: Calendar, title: "Interview Scheduling", desc: "Seamless calendar integration" },
               ].map((feature) => (
                 <div
                   key={feature.title}
                   className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition-all duration-300"
-                  style={{ animationDelay: feature.delay }}
                 >
                   <div className="w-12 h-12 rounded-xl bg-teal-500 flex items-center justify-center mb-4 shadow-lg">
                     <feature.icon className="w-6 h-6 text-white" />
