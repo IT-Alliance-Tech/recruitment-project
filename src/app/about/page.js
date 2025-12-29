@@ -3,6 +3,7 @@
 import Header from "../../components/Homepage/Header";
 import Footer from "../../components/Homepage/Footer";
 import Image from "next/image";
+import Link from "next/link";
 import { Target, Heart, Lightbulb, Users, ArrowRight } from "lucide-react";
 
 /* TEAM IMAGES */
@@ -55,7 +56,7 @@ export default function About() {
         </div>
       </section>
 
-      {/* OUR STORY — UPDATED CONTENT */}
+      {/* OUR STORY */}
       <section className="py-12 md:py-14 bg-[#f8fafc]">
         <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-12 items-center">
           <div className="space-y-6">
@@ -72,17 +73,13 @@ export default function About() {
                 RecruitATS was founded in 2020 by a team of HR professionals and software
                 engineers who experienced firsthand the challenges of modern recruiting.
               </p>
-
               <p>
                 We saw talented candidates getting lost in outdated systems, recruiters
-                drowning in spreadsheets, and hiring managers frustrated with slow
-                processes. We knew there had to be a better way.
+                drowning in spreadsheets, and hiring managers frustrated with slow processes.
               </p>
-
               <p>
                 Today, RecruitATS powers recruitment for hundreds of companies worldwide,
-                from fast-growing startups to Fortune 500 enterprises. Our platform has
-                helped place over 10,000 candidates in their dream roles.
+                helping place over 10,000 candidates in their dream roles.
               </p>
             </div>
           </div>
@@ -161,16 +158,19 @@ export default function About() {
         </p>
 
         <div className="flex flex-col sm:flex-row gap-5 justify-center">
-          <a href="/schedule">
-            <button className="px-8 py-4 bg-teal-500 hover:bg-teal-600 text-white rounded-xl">
-              Book a Consultation
-            </button>
-          </a>
-          <a href="/contact">
-            <button className="px-8 py-4 border border-white/30 text-white rounded-xl hover:bg-white/10 flex items-center gap-2">
-              Contact Us <ArrowRight className="w-5 h-5" />
-            </button>
-          </a>
+          <Link
+            href="/schedule"
+            className="px-8 py-4 bg-teal-500 hover:bg-teal-600 text-white rounded-xl"
+          >
+            Book a Consultation
+          </Link>
+
+          <Link
+            href="/contact"
+            className="px-8 py-4 border border-white/30 text-white rounded-xl hover:bg-white/10 flex items-center gap-2"
+          >
+            Contact Us <ArrowRight className="w-5 h-5" />
+          </Link>
         </div>
       </section>
 

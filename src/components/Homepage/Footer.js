@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Users, Mail, Phone, MapPin, Linkedin, Twitter, Facebook } from "lucide-react";
 
 export default function Footer() {
@@ -12,14 +13,14 @@ export default function Footer() {
 
           {/* Brand */}
           <div className="space-y-4">
-            <div className="flex items-center gap-2">
+            <Link href="/" className="flex items-center gap-2">
               <div className="w-10 h-10 rounded-xl bg-teal-500 flex items-center justify-center">
                 <Users className="w-5 h-5 text-white" />
               </div>
               <span className="text-xl font-bold text-white">
                 Recruit<span className="text-teal-400">ATS</span>
               </span>
-            </div>
+            </Link>
 
             <p className="text-sm leading-relaxed text-gray-400">
               Streamline your recruitment process with our powerful ATS solution.
@@ -43,13 +44,26 @@ export default function Footer() {
           <div>
             <h4 className="text-lg font-semibold text-white mb-4">Quick Links</h4>
             <ul className="space-y-3">
-              {["Home", "About Us", "Services", "Contact"].map((item) => (
-                <li key={item}>
-                  <a href="#" className="text-sm text-gray-400 hover:text-teal-400 transition">
-                    {item}
-                  </a>
-                </li>
-              ))}
+              <li>
+                <Link href="/" className="text-sm text-gray-400 hover:text-teal-400 transition">
+                  Home
+                </Link>
+              </li>
+              <li>
+                <Link href="/about" className="text-sm text-gray-400 hover:text-teal-400 transition">
+                  About Us
+                </Link>
+              </li>
+              <li>
+                <Link href="/services" className="text-sm text-gray-400 hover:text-teal-400 transition">
+                  Services
+                </Link>
+              </li>
+              <li>
+                <Link href="/contact" className="text-sm text-gray-400 hover:text-teal-400 transition">
+                  Contact
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -57,18 +71,17 @@ export default function Footer() {
           <div>
             <h4 className="text-lg font-semibold text-white mb-4">Services</h4>
             <ul className="space-y-3">
-              {[
-                "Candidate Pipeline",
-                "Client Tracking",
-                "Resume Upload",
-                "Interview Scheduling",
-              ].map((item) => (
-                <li key={item}>
-                  <a href="#" className="text-sm text-gray-400 hover:text-teal-400 transition">
-                    {item}
-                  </a>
-                </li>
-              ))}
+              <li className="text-sm text-gray-400">Candidate Pipeline</li>
+              <li className="text-sm text-gray-400">Client Tracking</li>
+              <li className="text-sm text-gray-400">Resume Upload</li>
+              <li>
+                <Link
+                  href="/schedule"
+                  className="text-sm text-gray-400 hover:text-teal-400 transition"
+                >
+                  Interview Scheduling
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -86,14 +99,20 @@ export default function Footer() {
 
               <li className="flex items-center gap-3">
                 <Phone className="w-5 h-5 text-teal-400" />
-                <a href="tel:+1234567890" className="text-gray-400 hover:text-teal-400 transition">
+                <a
+                  href="tel:+1234567890"
+                  className="text-gray-400 hover:text-teal-400 transition"
+                >
                   +1 (234) 567-890
                 </a>
               </li>
 
               <li className="flex items-center gap-3">
                 <Mail className="w-5 h-5 text-teal-400" />
-                <a href="mailto:hello@recruitats.com" className="text-gray-400 hover:text-teal-400 transition">
+                <a
+                  href="mailto:hello@recruitats.com"
+                  className="text-gray-400 hover:text-teal-400 transition"
+                >
                   hello@recruitats.com
                 </a>
               </li>
