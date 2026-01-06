@@ -1,10 +1,56 @@
 "use client";
 
+import { useState } from "react";
 import Header from "../../components/Homepage/Header";
 import Footer from "../../components/Homepage/Footer";
 import { Mail, Phone, MapPin, Clock, Send } from "lucide-react";
 
 export default function Contact() {
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    message: "",
+  });
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      const res = await fetch("http://localhost:5000/api/contact", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        alert("Message sent successfully");
+        setFormData({
+          name: "",
+          email: "",
+          phone: "",
+          message: "",
+        });
+      } else {
+        alert(data.error || "Submission failed");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Something went wrong");
+    }
+  };
+
   return (
     <>
       <Header />
@@ -92,39 +138,54 @@ export default function Contact() {
             </div>
           </div>
 
-          {/* CONTACT FORM (UI ONLY) */}
+          {/* CONTACT FORM */}
           <div className="bg-white rounded-3xl p-10 border border-gray-200 shadow-xl">
             <h3 className="text-2xl font-semibold text-gray-900 mb-6">
               Send Us a Message
             </h3>
 
-            <form className="space-y-6">
+            <form className="space-y-6" onSubmit={handleSubmit}>
               <input
                 type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
                 placeholder="Full Name"
                 className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                required
               />
 
               <input
                 type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
                 placeholder="Email Address"
                 className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                required
               />
 
               <input
                 type="tel"
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
                 placeholder="Phone Number"
                 className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-500"
               />
 
               <textarea
                 rows="5"
+                name="message"
+                value={formData.message}
+                onChange={handleChange}
                 placeholder="Your Message"
                 className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                required
               />
 
               <button
-                type="button"
+                type="submit"
                 className="w-full inline-flex items-center justify-center gap-2 px-6 py-4 bg-teal-500 hover:bg-teal-600 text-white font-semibold rounded-xl transition"
               >
                 <Send className="w-5 h-5" />

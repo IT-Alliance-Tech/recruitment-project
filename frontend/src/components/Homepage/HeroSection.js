@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Users, Calendar, FileText, BarChart3 } from "lucide-react";
+import { Users, Calendar, FileText, BarChart3 } from "lucide-react";
 
 export default function HeroSection() {
   return (
@@ -35,27 +35,15 @@ export default function HeroSection() {
               client tracking, and seamless interview scheduling.
             </p>
 
-            {/* Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              
-              {/* Book Consultation → Schedule Page */}
+            {/* CTA Button */}
+            <div className="flex justify-center lg:justify-start">
               <Link
-                href="/schedule"
+                href="/resume-upload"
                 className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-teal-500 hover:bg-teal-600 transition font-semibold shadow-lg w-full sm:w-auto"
               >
-                <Calendar className="w-5 h-5" />
-                Book Consultation
+                <FileText className="w-5 h-5" />
+                Apply Now
               </Link>
-
-              {/* Learn More → Services Page */}
-              <Link
-                href="/services"
-                className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl border border-white/30 hover:bg-white/10 transition font-semibold w-full sm:w-auto"
-              >
-                Learn More
-                <ArrowRight className="w-5 h-5" />
-              </Link>
-
             </div>
 
             {/* Stats */}

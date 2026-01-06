@@ -14,27 +14,67 @@ export default function ResumeUpload() {
   const [resume, setResume] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [error, setError] = useState("");
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleFileChange = (e) => {
-    setResume(e.target.files[0]);
+    const file = e.target.files[0];
+
+    if (!file) return;
+
+    if (file.size > 10 * 1024 * 1024) {
+      setError("Resume must be less than 10MB");
+      setResume(null);
+      return;
+    }
+
+    setError("");
+    setResume(file);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!resume) {
-      alert("Please upload your resume");
+      setError("Please upload your resume");
       return;
     }
 
     setIsSubmitting(true);
+    setError("");
+    setSuccess(false);
 
-    // frontend-only submit
-    setTimeout(() => {
+    try {
+      const data = new FormData();
+      data.append("fullName", formData.fullName);
+      data.append("email", formData.email);
+      data.append("phone", formData.phone);
+      data.append("position", formData.position);
+      data.append("resume", resume);
+
+      const response = await fetch("http://localhost:5000/api/candidates", {
+        method: "POST",
+        body: data,
+      });
+
+      const text = await response.text();
+      let result;
+
+      try {
+        result = JSON.parse(text);
+      } catch {
+        throw new Error("Server error. Please try again later.");
+      }
+
+      if (!response.ok) {
+        throw new Error(
+          result.message || result.error || "Submission failed"
+        );
+      }
+
       setSuccess(true);
       setFormData({
         fullName: "",
@@ -43,15 +83,17 @@ export default function ResumeUpload() {
         position: "",
       });
       setResume(null);
+    } catch (err) {
+      setError(err.message);
+    } finally {
       setIsSubmitting(false);
-    }, 1200);
+    }
   };
 
   return (
     <>
       {/* ================= HERO ================= */}
       <section className="relative min-h-[55vh] flex items-center justify-center text-white overflow-hidden bg-gradient-to-br from-[#0b1c33] via-[#0f2f4f] to-[#0f4c5c]">
-
         <div className="absolute -top-40 -left-40 w-[500px] h-[500px] bg-teal-400/20 rounded-full blur-[140px]" />
         <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-blue-400/20 rounded-full blur-[140px]" />
 
@@ -79,12 +121,17 @@ export default function ResumeUpload() {
             {success && (
               <div className="mb-6 flex items-center gap-3 bg-green-50 border border-green-200 p-4 rounded-xl text-green-700">
                 <CheckCircle className="w-5 h-5" />
-                Resume submitted successfully!
+                Your resume has been submitted successfully. Our team will review it and get back to you shortly.
+              </div>
+            )}
+
+            {error && (
+              <div className="mb-6 bg-red-50 border border-red-200 p-4 rounded-xl text-red-700">
+                {error}
               </div>
             )}
 
             <form onSubmit={handleSubmit} className="space-y-6">
-
               <input
                 name="fullName"
                 placeholder="Full Name"
@@ -138,7 +185,7 @@ export default function ResumeUpload() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full flex items-center justify-center gap-2 px-6 py-4 rounded-xl bg-teal-500 text-white"
+                className="w-full flex items-center justify-center gap-2 px-6 py-4 rounded-xl bg-teal-500 text-white disabled:opacity-60"
               >
                 <FileText className="w-5 h-5" />
                 {isSubmitting ? "Submitting..." : "Submit Resume"}

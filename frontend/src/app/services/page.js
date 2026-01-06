@@ -16,6 +16,7 @@ import {
 
 const services = [
   {
+    id: "candidate-pipeline",
     icon: Users,
     title: "Candidate Pipeline Management",
     description:
@@ -30,6 +31,7 @@ const services = [
     link: "/pipeline",
   },
   {
+    id: "client-tracking",
     icon: BarChart3,
     title: "Client Tracking",
     description:
@@ -44,6 +46,7 @@ const services = [
     link: "/clients",
   },
   {
+    id: "resume-upload",
     icon: FileText,
     title: "Resume Collection",
     description:
@@ -58,6 +61,7 @@ const services = [
     link: "/resume-upload",
   },
   {
+    id: "interview-scheduling",
     icon: Calendar,
     title: "Interview Scheduling",
     description:
@@ -105,8 +109,9 @@ export default function Services() {
           <div className="grid lg:grid-cols-2 gap-8">
             {services.map((service) => (
               <div
-                key={service.title}
-                className="bg-white rounded-3xl p-8 md:p-10 border border-gray-200 hover:border-teal-300 transition-all duration-300 hover:shadow-xl"
+                key={service.id}
+                id={service.id}
+                className="bg-white rounded-3xl p-8 md:p-10 border border-gray-200 hover:border-teal-300 transition-all duration-300 hover:shadow-xl scroll-mt-28"
               >
                 <div className="flex items-start gap-6">
                   <div className="w-16 h-16 rounded-2xl bg-teal-100 flex items-center justify-center shrink-0">
@@ -161,9 +166,9 @@ export default function Services() {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-5 justify-center">
-            <Link href="/schedule">
+            <Link href="/resume-upload">
               <button className="px-8 py-4 bg-teal-500 hover:bg-teal-600 text-white font-semibold rounded-xl">
-                Book Consultation
+                Apply now
               </button>
             </Link>
 

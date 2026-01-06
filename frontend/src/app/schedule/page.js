@@ -1,111 +1,145 @@
 "use client";
 
-import Header from "../../components/Homepage/Header";
-import Footer from "../../components/Homepage/Footer";
-import { Calendar, Clock, Video, Users, CheckCircle } from "lucide-react";
+import { useSearchParams, useRouter } from "next/navigation";
+import { useState } from "react";
+import { Calendar, User, ArrowLeft } from "lucide-react";
 
-const benefits = [
-  "Personalized demo of our platform",
-  "Answer all your questions",
-  "Discuss your specific hiring needs",
-  "No commitment required",
-];
+export default function ScheduleInterview() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
 
-export default function Schedule() {
+  const candidateId = searchParams.get("candidateId");
+
+  const [form, setForm] = useState({
+    roundName: "HR",
+    scheduledAt: "",
+    interviewer: "",
+  });
+
+  const [loading, setLoading] = useState(false);
+
+  /* ================= SUBMIT ================= */
+
+  const scheduleInterview = async () => {
+    if (!candidateId || !form.scheduledAt || !form.interviewer) {
+      alert("Please fill all required fields");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const res = await fetch(
+        `http://localhost:5000/api/candidates/${candidateId}/interview`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(form),
+        }
+      );
+
+      const json = await res.json();
+
+      if (!json.success) {
+        alert("Failed to schedule interview");
+        setLoading(false);
+        return;
+      }
+
+      alert("Interview scheduled successfully");
+      router.push("/pipeline");
+    } catch (error) {
+      console.error(error);
+      alert("Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  /* ================= UI ================= */
+
   return (
-    <>
-      <Header />
-
-      {/* HERO */}
-      <section className="relative min-h-[60vh] flex items-center justify-center bg-gradient-to-br from-[#0b1c33] via-[#0f2f4f] to-[#0f4c5c] overflow-hidden">
-        <div className="absolute -top-40 -left-40 w-[500px] h-[500px] bg-teal-400/20 rounded-full blur-[140px]" />
-        <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-blue-400/20 rounded-full blur-[140px]" />
-
-        <div className="relative z-10 max-w-3xl mx-auto px-6 text-center">
-          <span className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white/10 border border-white/20 text-teal-300 text-sm font-medium mb-6">
-            <Calendar className="w-4 h-4" />
-            Book a Call
-          </span>
-
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6">
-            Schedule Your{" "}
-            <span className="text-teal-400">Free Consultation</span>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center px-4">
+      <div className="bg-white w-full max-w-xl rounded-2xl shadow-xl p-8 border border-gray-200">
+        {/* HEADER */}
+        <div className="flex items-center gap-3 mb-6">
+          <button
+            onClick={() => router.back()}
+            className="p-2 hover:bg-gray-100 rounded-lg"
+          >
+            <ArrowLeft />
+          </button>
+          <h1 className="text-3xl font-bold text-gray-800">
+            Schedule Interview
           </h1>
-
-          <p className="text-lg md:text-xl text-white/70">
-            Let’s discuss how RecruitATS can transform your hiring process.
-            Book a free 30-minute consultation with our team.
-          </p>
         </div>
-      </section>
 
-      {/* CONTENT */}
-      <section className="py-16 bg-[#f8fafc]">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="grid lg:grid-cols-2 gap-16 items-start">
+        {/* FORM */}
+        <div className="space-y-5">
+          {/* ROUND */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Interview Round
+            </label>
+            <select
+              value={form.roundName}
+              onChange={(e) =>
+                setForm({ ...form, roundName: e.target.value })
+              }
+              className="w-full border-2 border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="HR">HR Round</option>
+              <option value="Technical">Technical Round</option>
+              <option value="Managerial">Managerial Round</option>
+            </select>
+          </div>
 
-            {/* LEFT — INFO */}
-            <div className="space-y-8">
-              <div>
-                <h2 className="text-3xl font-bold text-gray-900 mb-4">
-                  What to Expect
-                </h2>
-                <p className="text-gray-500">
-                  During our call, we’ll walk you through our platform and
-                  explain how it can simplify and speed up your recruitment workflow.
-                </p>
-              </div>
-
-              <div className="space-y-4">
-                {benefits.map((benefit) => (
-                  <div key={benefit} className="flex items-center gap-3">
-                    <div className="w-6 h-6 rounded-full bg-teal-500 flex items-center justify-center">
-                      <CheckCircle className="w-4 h-4 text-white" />
-                    </div>
-                    <span className="text-gray-700">{benefit}</span>
-                  </div>
-                ))}
-              </div>
-
-              <div className="bg-white rounded-2xl p-6 border border-gray-200">
-                <h3 className="font-semibold text-gray-900 mb-4">
-                  Call Details
-                </h3>
-
-                <div className="space-y-4">
-                  <div className="flex items-center gap-3 text-gray-600">
-                    <Clock className="w-5 h-5 text-teal-500" />
-                    <span>30 minutes</span>
-                  </div>
-
-                  <div className="flex items-center gap-3 text-gray-600">
-                    <Video className="w-5 h-5 text-teal-500" />
-                    <span>Google Meet / Zoom</span>
-                  </div>
-
-                  <div className="flex items-center gap-3 text-gray-600">
-                    <Users className="w-5 h-5 text-teal-500" />
-                    <span>With our product specialists</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* RIGHT — CALENDLY */}
-            <div className="bg-white rounded-3xl border border-gray-200 shadow-xl overflow-hidden">
-              <iframe
-                src="https://calendly.com/gireeshma-italliancetech/30min"
-                className="w-full h-[800px]"
-                frameBorder="0"
-                title="Schedule a consultation"
+          {/* DATE & TIME */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Interview Date & Time
+            </label>
+            <div className="relative">
+              <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+              <input
+                type="datetime-local"
+                value={form.scheduledAt}
+                onChange={(e) =>
+                  setForm({ ...form, scheduledAt: e.target.value })
+                }
+                className="w-full pl-12 pr-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500"
               />
             </div>
+          </div>
 
+          {/* INTERVIEWER */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Interviewer Name
+            </label>
+            <div className="relative">
+              <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+              <input
+                placeholder="e.g. John HR"
+                value={form.interviewer}
+                onChange={(e) =>
+                  setForm({ ...form, interviewer: e.target.value })
+                }
+                className="w-full pl-12 pr-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
           </div>
         </div>
-      </section>
 
-      <Footer />
-    </>
+        {/* SUBMIT */}
+        <button
+          onClick={scheduleInterview}
+          disabled={loading}
+          className="w-full mt-8 bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 disabled:opacity-50"
+        >
+          {loading ? "Scheduling..." : "Schedule Interview"}
+        </button>
+      </div>
+    </div>
   );
 }

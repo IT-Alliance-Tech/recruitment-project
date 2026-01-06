@@ -159,10 +159,10 @@ export default function About() {
 
         <div className="flex flex-col sm:flex-row gap-5 justify-center">
           <Link
-            href="/schedule"
+            href="/resume-upload"
             className="px-8 py-4 bg-teal-500 hover:bg-teal-600 text-white rounded-xl"
           >
-            Book a Consultation
+            Apply now
           </Link>
 
           <Link

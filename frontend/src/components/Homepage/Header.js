@@ -1,11 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Menu, X, Users, Calendar, FileText, BarChart3 } from "lucide-react";
+import {
+  Menu,
+  X,
+  FileText,
+  Users,
+  LogIn,
+  LayoutDashboard,
+  LogOut,
+} from "lucide-react";
 
 export default function Header() {
+  const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [isUser, setIsUser] = useState(false);
 
   const navLinks = [
     { name: "Home", href: "/" },
@@ -14,11 +26,26 @@ export default function Header() {
     { name: "Contact", href: "/contact" },
   ];
 
-  const dashboardLinks = [
-    { name: "Pipeline", icon: Users },
-    { name: "Clients", icon: BarChart3 },
-    { name: "Resume Upload", icon: FileText },
-  ];
+  useEffect(() => {
+    const admin = localStorage.getItem("isAdmin");
+    const token = localStorage.getItem("token");
+
+    setIsAdmin(admin === "true");
+    setIsUser(!!token);
+  }, []);
+
+  /* ---------- LOGOUT HANDLERS ---------- */
+  const handleAdminLogout = () => {
+    localStorage.removeItem("isAdmin");
+    setIsAdmin(false);
+    router.push("/login");
+  };
+
+  const handleUserLogout = () => {
+    localStorage.removeItem("token");
+    setIsUser(false);
+    router.push("/user/login");
+  };
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-lg border-b border-gray-200">
@@ -46,29 +73,80 @@ export default function Header() {
                 {link.name}
               </Link>
             ))}
-
-            <div className="w-px h-6 bg-gray-300 mx-2" />
-
-            {dashboardLinks.map((link) => (
-              <button
-                key={link.name}
-                className="px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition flex items-center gap-2"
-              >
-                <link.icon className="w-4 h-4" />
-                {link.name}
-              </button>
-            ))}
           </nav>
 
-          {/* DESKTOP CTA → SCHEDULE PAGE */}
-          <div className="hidden md:flex items-center">
+          {/* DESKTOP ACTIONS */}
+          <div className="hidden md:flex items-center gap-3">
+            {/* Apply Now */}
             <Link
-              href="/schedule"
+              href="/resume-upload"
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-teal-500 hover:bg-teal-600 text-white font-semibold transition shadow-md"
             >
-              <Calendar className="w-4 h-4" />
-              Book Consultation
+              <FileText className="w-4 h-4" />
+              Apply Now
             </Link>
+
+            {/* -------- USER ACTIONS -------- */}
+            {!isUser && !isAdmin && (
+              <Link
+                href="/user/login"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-gray-300 text-gray-700 font-medium hover:bg-gray-100 transition"
+              >
+                <LogIn className="w-4 h-4" />
+                User Login
+              </Link>
+            )}
+
+            {isUser && (
+              <>
+                <Link
+                  href="/user/dashboard"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-gray-300 text-gray-700 font-medium hover:bg-gray-100 transition"
+                >
+                  <LayoutDashboard className="w-4 h-4" />
+                  Dashboard
+                </Link>
+
+                <button
+                  onClick={handleUserLogout}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-red-300 text-red-600 font-medium hover:bg-red-50 transition"
+                >
+                  <LogOut className="w-4 h-4" />
+                  Logout
+                </button>
+              </>
+            )}
+
+            {/* -------- ADMIN ACTIONS -------- */}
+            {!isAdmin && !isUser && (
+              <Link
+                href="/login"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-gray-300 text-gray-700 font-medium hover:bg-gray-100 transition"
+              >
+                <LogIn className="w-4 h-4" />
+                Admin Login
+              </Link>
+            )}
+
+            {isAdmin && (
+              <>
+                <Link
+                  href="/dashboard"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-gray-300 text-gray-700 font-medium hover:bg-gray-100 transition"
+                >
+                  <LayoutDashboard className="w-4 h-4" />
+                  Dashboard
+                </Link>
+
+                <button
+                  onClick={handleAdminLogout}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-red-300 text-red-600 font-medium hover:bg-red-50 transition"
+                >
+                  <LogOut className="w-4 h-4" />
+                  Logout
+                </button>
+              </>
+            )}
           </div>
 
           {/* MOBILE MENU BUTTON */}
@@ -101,28 +179,38 @@ export default function Header() {
 
               <div className="h-px bg-gray-200 my-2" />
 
-              {dashboardLinks.map((link) => (
-                <button
-                  key={link.name}
-                  className="px-4 py-3 rounded-lg text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition flex items-center gap-2"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  <link.icon className="w-4 h-4" />
-                  {link.name}
-                </button>
-              ))}
-
-              <div className="h-px bg-gray-200 my-2" />
-
-              {/* MOBILE CTA → SCHEDULE PAGE */}
               <Link
-                href="/schedule"
-                className="mt-2 mx-4 inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-teal-500 hover:bg-teal-600 text-white font-semibold transition shadow-md"
+                href="/resume-upload"
+                className="mx-4 inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-teal-500 hover:bg-teal-600 text-white font-semibold transition shadow-md"
                 onClick={() => setIsMenuOpen(false)}
               >
-                <Calendar className="w-4 h-4" />
-                Book Consultation
+                <FileText className="w-4 h-4" />
+                Apply Now
               </Link>
+
+              {!isUser && !isAdmin && (
+                <Link
+                  href="/user/login"
+                  className="mx-4 mt-2 inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl border border-gray-300 text-gray-700 font-medium hover:bg-gray-100 transition"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  <LogIn className="w-4 h-4" />
+                  User Login
+                </Link>
+              )}
+
+              {isUser && (
+                <button
+                  onClick={() => {
+                    handleUserLogout();
+                    setIsMenuOpen(false);
+                  }}
+                  className="mx-4 mt-2 inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl border border-red-300 text-red-600 font-medium hover:bg-red-50 transition"
+                >
+                  <LogOut className="w-4 h-4" />
+                  Logout
+                </button>
+              )}
             </nav>
           </div>
         )}
