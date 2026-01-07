@@ -56,25 +56,26 @@ export default function Pipeline() {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
 
-  /* ================= FETCH ================= */
+  /* ================= FETCH CANDIDATES ================= */
 
   const fetchCandidates = async () => {
     try {
       setLoading(true);
+
       const res = await fetch("http://localhost:5000/api/candidates");
       const json = await res.json();
 
       if (!json.success) {
         setCandidates([]);
-        setLoading(false);
         return;
       }
 
-      setCandidates(json.data.candidates);
-      setLoading(false);
+      // ✅ FIXED: correct backend response path
+      setCandidates(json.data?.candidates || []);
     } catch (error) {
-      console.error(error);
+      console.error("Fetch candidates error:", error);
       setCandidates([]);
+    } finally {
       setLoading(false);
     }
   };
@@ -95,7 +96,7 @@ export default function Pipeline() {
 
       fetchCandidates();
     } catch (error) {
-      console.error(error);
+      console.error("Update status error:", error);
     }
   };
 
@@ -140,31 +141,34 @@ export default function Pipeline() {
   /* ================= UI ================= */
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50">
       {/* HEADER */}
-      <div className="bg-white shadow-lg border-b border-gray-200">
+      <div className="bg-white border-b shadow-sm sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-6 py-8">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-teal-600 to-teal-500 bg-clip-text text-transparent mb-2">
+          <h1 className="text-4xl font-bold text-slate-900 mb-2">
             Candidate Pipeline
           </h1>
-          <p className="text-gray-600 text-lg">
-            Screen resumes and manage interview flow
+          <p className="text-slate-600">
+            Screen resumes and manage the recruitment flow
           </p>
 
           {/* STATS */}
-          <div className="grid grid-cols-3 gap-6 my-8">
+          {/* UI improvement only – no logic change */}
+          <div className="grid grid-cols-3 gap-6 mt-8">
             {stats.map((stat, i) => (
               <div
                 key={i}
-                className="bg-gradient-to-br from-white to-gray-50 rounded-xl p-6 border border-gray-200 shadow-md hover:shadow-lg transition-shadow"
+                className="bg-gradient-to-br from-slate-50 to-white rounded-xl p-6 border border-slate-200 transition-all hover:shadow-md"
               >
-                <div className="flex justify-between items-center">
+                <div className="flex justify-between items-start">
                   <div>
-                    <p className="text-sm text-gray-600 font-medium">{stat.label}</p>
-                    <p className="text-3xl font-bold text-gray-800 mt-1">{stat.value}</p>
+                    <p className="text-xs font-semibold text-slate-600 uppercase tracking-wide mb-1">
+                      {stat.label}
+                    </p>
+                    <p className="text-3xl font-bold text-slate-900">{stat.value}</p>
                   </div>
-                  <div className={`${stat.color} p-3 rounded-xl shadow-sm`}>
-                    <stat.icon className="text-white" size={24} />
+                  <div className={`${stat.color} p-3 rounded-lg`}>
+                    <stat.icon className="text-white" size={20} />
                   </div>
                 </div>
               </div>
@@ -172,13 +176,14 @@ export default function Pipeline() {
           </div>
 
           {/* SEARCH */}
-          <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+          {/* UI improvement only – no logic change */}
+          <div className="relative mt-8">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search by name, email, or position..."
-              className="w-full pl-12 pr-4 py-4 border rounded-xl focus:ring-2 focus:ring-teal-500"
+              className="w-full pl-12 pr-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-slate-900 placeholder:text-slate-500 transition-all"
             />
           </div>
         </div>
@@ -186,173 +191,133 @@ export default function Pipeline() {
 
       {/* TABLE */}
       <div className="max-w-7xl mx-auto px-6 py-8">
-        <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
           {loading ? (
-            <div className="py-16 text-center">Loading...</div>
+            <div className="py-20 text-center">
+              <div className="animate-pulse space-y-4">
+                <div className="h-4 bg-slate-200 rounded w-1/4 mx-auto"></div>
+                <p className="text-slate-500">Loading candidates...</p>
+              </div>
+            </div>
           ) : filtered.length === 0 ? (
-            <div className="py-16 text-center text-gray-600">
-              No candidates found
+            <div className="py-20 text-center">
+              <Users className="mx-auto mb-4 text-slate-300" size={48} />
+              <p className="text-slate-600 font-medium text-lg">No candidates found</p>
+              <p className="text-slate-500 text-sm mt-2">Try adjusting your search criteria</p>
             </div>
           ) : (
-            <table className="w-full">
-              <thead className="bg-gradient-to-r from-teal-50 to-blue-50">
-                <tr>
-                  <th className="px-6 py-4 text-left font-semibold text-gray-700">Candidate</th>
-                  <th className="px-6 py-4 text-left font-semibold text-gray-700">Position</th>
-                  <th className="px-6 py-4 text-left font-semibold text-gray-700">Email</th>
-                  <th className="px-6 py-4 text-left font-semibold text-gray-700">Resume</th>
-                  <th className="px-6 py-4 text-left font-semibold text-gray-700">Status</th>
-                  <th className="px-6 py-4 text-left font-semibold text-gray-700">Applied</th>
-                  <th className="px-6 py-4 text-right font-semibold text-gray-700">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map((c) => {
-                  const stage = stages[c.status] || stages.DEFAULT;
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-slate-50 border-b border-slate-200">
+                  <tr>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wide">
+                      Candidate
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wide">
+                      Position
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wide">
+                      Email
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wide">
+                      Resume
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wide">
+                      Status
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wide">
+                      Applied Date
+                    </th>
+                    <th className="px-6 py-4 text-right text-xs font-bold text-slate-700 uppercase tracking-wide">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
 
-                  return (
-                    <tr key={c._id} className="border-t hover:bg-gray-50 transition-colors">
-                      <td className="px-6 py-4 font-semibold text-gray-800">
-                        {c.fullName}
-                      </td>
-                      <td className="px-6 py-4 text-gray-700">{c.position}</td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-2 text-gray-700">
-                          <Mail size={16} className="text-teal-600" /> {c.email}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <button
-                          onClick={() => window.open(c.resumeUrl, "_blank")}
-                          className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-teal-500 to-teal-600 text-white rounded-lg hover:from-teal-600 hover:to-teal-700 transition-all shadow-sm hover:shadow-md"
-                          title="View Resume"
-                        >
-                          <Eye size={16} />
-                          <span className="font-medium">View</span>
-                        </button>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span
-                          className={`px-4 py-2 rounded-full border text-sm font-semibold ${stage.color}`}
-                        >
-                          {stage.label}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-2 text-gray-700">
-                          <Calendar size={16} className="text-teal-600" />
-                          {new Date(c.appliedDate).toLocaleDateString()}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 text-right space-x-2">
-                        {/* APPLIED */}
-                        {c.status === "APPLIED" && (
-                          <>
-                            <button
-                              onClick={() =>
-                                updateStatus(c._id, "SHORTLISTED")
-                              }
-                              className="p-2 bg-green-100 rounded-lg hover:bg-green-200 transition-colors"
-                              title="Shortlist"
-                            >
-                              <CheckCircle className="text-green-600" />
-                            </button>
-                            <button
-                              onClick={() =>
-                                updateStatus(c._id, "REJECTED")
-                              }
-                              className="p-2 bg-red-100 rounded-lg hover:bg-red-200 transition-colors"
-                              title="Reject"
-                            >
-                              <XCircle className="text-red-600" />
-                            </button>
-                          </>
-                        )}
+                <tbody className="divide-y divide-slate-200">
+                  {filtered.map((c) => {
+                    const stage = stages[c.status] || stages.DEFAULT;
 
-                        {/* SHORTLISTED */}
-                        {c.status === "SHORTLISTED" && (
+                    return (
+                      <tr key={c._id} className="hover:bg-slate-50 transition-colors">
+                        <td className="px-6 py-4 font-semibold text-slate-900">
+                          {c.fullName}
+                        </td>
+                        <td className="px-6 py-4 text-slate-700">{c.position}</td>
+                        <td className="px-6 py-4 flex items-center gap-2 text-slate-700">
+                          <Mail size={16} className="text-slate-400" />
+                          <span className="text-sm">{c.email}</span>
+                        </td>
+                        <td className="px-6 py-4">
                           <button
-                            onClick={() => scheduleInterview(c._id)}
-                            className="p-2 bg-blue-100 rounded-lg hover:bg-blue-200 transition-colors"
-                            title="Schedule Interview"
+                            disabled={!c.resumeUrl}
+                            onClick={() =>
+                              c.resumeUrl && window.open(c.resumeUrl, "_blank")
+                            }
+                            className="inline-flex items-center gap-2 px-3 py-2 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                           >
-                            <CalendarPlus className="text-blue-600" />
+                            <Eye size={16} />
+                            View
                           </button>
-                        )}
+                        </td>
+                        <td className="px-6 py-4">
+                          <span
+                            className={`px-3 py-1 rounded-full border text-xs font-bold whitespace-nowrap ${stage.color}`}
+                          >
+                            {stage.label}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-slate-700 text-sm">
+                          {c.appliedDate
+                            ? new Date(c.appliedDate).toLocaleDateString('en-US', {
+                                year: 'numeric',
+                                month: 'short',
+                                day: 'numeric',
+                              })
+                            : "—"}
+                        </td>
+                        <td className="px-6 py-4 text-right">
+                          <div className="flex items-center justify-end gap-2">
+                            {c.status === "APPLIED" && (
+                              <>
+                                <button
+                                  onClick={() =>
+                                    updateStatus(c._id, "SHORTLISTED")
+                                  }
+                                  className="p-2 bg-green-100 hover:bg-green-200 text-green-700 rounded-lg transition-colors"
+                                  title="Shortlist candidate"
+                                >
+                                  <CheckCircle size={18} />
+                                </button>
+                                <button
+                                  onClick={() =>
+                                    updateStatus(c._id, "REJECTED")
+                                  }
+                                  className="p-2 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg transition-colors"
+                                  title="Reject candidate"
+                                >
+                                  <XCircle size={18} />
+                                </button>
+                              </>
+                            )}
 
-                        {/* INTERVIEW / IN PROGRESS */}
-                        {["INTERVIEW_SCHEDULED", "IN_PROGRESS"].includes(
-                          c.status
-                        ) && (
-                          <>
-                            <button
-                              onClick={() =>
-                                updateStatus(c._id, "IN_PROGRESS")
-                              }
-                              className="p-2 bg-indigo-100 rounded-lg hover:bg-indigo-200 transition-colors"
-                              title="Next Round"
-                            >
-                              <TrendingUp className="text-indigo-600" />
-                            </button>
-                            <button
-                              onClick={() =>
-                                updateStatus(c._id, "ON_HOLD")
-                              }
-                              className="p-2 bg-orange-100 rounded-lg hover:bg-orange-200 transition-colors"
-                              title="On Hold"
-                            >
-                              <Calendar className="text-orange-600" />
-                            </button>
-                            <button
-                              onClick={() =>
-                                updateStatus(c._id, "REJECTED")
-                              }
-                              className="p-2 bg-red-100 rounded-lg hover:bg-red-200 transition-colors"
-                              title="Reject"
-                            >
-                              <XCircle className="text-red-600" />
-                            </button>
-                          </>
-                        )}
-
-                        {/* ON HOLD */}
-                        {c.status === "ON_HOLD" && (
-                          <>
-                            <button
-                              onClick={() =>
-                                updateStatus(c._id, "IN_PROGRESS")
-                              }
-                              className="p-2 bg-indigo-100 rounded-lg hover:bg-indigo-200 transition-colors"
-                              title="Resume Process"
-                            >
-                              <TrendingUp className="text-indigo-600" />
-                            </button>
-                            <button
-                              onClick={() =>
-                                updateStatus(c._id, "SELECTED")
-                              }
-                              className="p-2 bg-green-100 rounded-lg hover:bg-green-200 transition-colors"
-                              title="Select"
-                            >
-                              <CheckCircle className="text-green-600" />
-                            </button>
-                            <button
-                              onClick={() =>
-                                updateStatus(c._id, "REJECTED")
-                              }
-                              className="p-2 bg-red-100 rounded-lg hover:bg-red-200 transition-colors"
-                              title="Reject"
-                            >
-                              <XCircle className="text-red-600" />
-                            </button>
-                          </>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                            {c.status === "SHORTLISTED" && (
+                              <button
+                                onClick={() => scheduleInterview(c._id)}
+                                className="p-2 bg-purple-100 hover:bg-purple-200 text-purple-700 rounded-lg transition-colors"
+                                title="Schedule interview"
+                              >
+                                <CalendarPlus size={18} />
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
       </div>

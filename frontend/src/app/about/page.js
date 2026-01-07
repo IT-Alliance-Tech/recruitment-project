@@ -20,10 +20,10 @@ const values = [
 ];
 
 const stats = [
-  { value: "500+", label: "Companies Trust Us" },
-  { value: "10,000+", label: "Successful Placements" },
-  { value: "50+", label: "Countries Served" },
-  { value: "98%", label: "Client Satisfaction" },
+  { value: "5xxx+", label: "Companies Trust Us" },
+  { value: "1yyy+", label: "Successful Placements" },
+  { value: "5zz+", label: "Countries Served" },
+  { value: "9xx%", label: "Client Satisfaction" },
 ];
 
 const team = [

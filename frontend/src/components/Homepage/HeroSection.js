@@ -49,9 +49,9 @@ export default function HeroSection() {
             {/* Stats */}
             <div className="grid grid-cols-3 gap-8 pt-8 border-t border-white/10">
               {[
-                { value: "500+", label: "Companies" },
-                { value: "10K+", label: "Placements" },
-                { value: "98%", label: "Satisfaction" },
+                { value: "5XXX+", label: "Companies" },
+                { value: "1XXX+", label: "Placements" },
+                { value: "9XXX%", label: "Satisfaction" },
               ].map((stat) => (
                 <div key={stat.label} className="text-center lg:text-left">
                   <div className="text-2xl md:text-3xl font-bold text-teal-400">

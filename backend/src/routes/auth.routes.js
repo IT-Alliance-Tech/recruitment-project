@@ -1,25 +1,34 @@
 const express = require("express");
+const router = express.Router();
+
 const {
   registerUser,
   loginUser,
   getUserProfile,
   updateUserProfile,
+  updateUserResume,
 } = require("../controllers/auth.controller");
 
 const authMiddleware = require("../middleware/auth.middleware");
+const uploadResume = require("../middleware/upload.middleware");
 
-const router = express.Router();
-
-// Register user
+// Register
 router.post("/register", registerUser);
 
-// Login user
+// Login
 router.post("/login", loginUser);
 
-// Get logged-in user profile
+// Profile
 router.get("/profile", authMiddleware, getUserProfile);
-
-// Update logged-in user profile
 router.put("/profile", authMiddleware, updateUserProfile);
 
+// Resume upload
+router.patch(
+  "/resume",
+  authMiddleware,
+  uploadResume.single("resume"),
+  updateUserResume
+);
+
+// ✅ CORRECT
 module.exports = router;

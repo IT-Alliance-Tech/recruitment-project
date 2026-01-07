@@ -1,179 +1,198 @@
 const Candidate = require("../models/Candidate");
-const { supabase } = require("../config/supabase");
+const Job = require("../models/Job");
 
 /**
- * @desc    Get all candidates (Admin Pipeline) WITH pagination
- * @route   GET /api/candidates
+ * ===============================
+ * USER CONTROLLERS
+ * ===============================
  */
-const getAllCandidates = async (req, res) => {
+
+// GET logged-in user's candidate profile(s)
+// Returns all candidates (applications) for the logged-in user
+// This allows users to see ALL applied, rejected, shortlisted jobs
+exports.getMyCandidateProfile = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 5;
-    const skip = (page - 1) * limit;
+    // ✅ CHANGE: Use find() instead of findOne() to get ALL candidates
+    // This supports users with multiple applications
+    const candidates = await Candidate.find({ user: req.user._id })
+      // ✅ POPULATE: Include full job details (title, company, location, etc)
+      .populate("job")
+      // ✅ POPULATE: Include user details (name, email, phone)
+      .populate("user", "name email phone")
+      .sort({ createdAt: -1 });
 
-    const totalCandidates = await Candidate.countDocuments();
-
-    const candidates = await Candidate.find()
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit);
-
-    return res.status(200).json({
+    // ✅ CHANGE: Return empty array instead of 404
+    // Frontend UI handles empty array gracefully
+    res.status(200).json({
       success: true,
-      data: {
-        candidates,
-        pagination: {
-          totalCandidates,
-          totalPages: Math.ceil(totalCandidates / limit),
-          currentPage: page,
-        },
-      },
+      candidates,
     });
   } catch (error) {
-    console.error("FAILED_TO_FETCH_CANDIDATES", error);
-
-    return res.status(500).json({
+    console.error(error);
+    res.status(500).json({
       success: false,
-      error: "FAILED_TO_FETCH_CANDIDATES",
+      message: "Failed to fetch candidate profile",
     });
   }
 };
 
-/**
- * @desc    Create candidate (Resume Upload)
- * @route   POST /api/candidates
- */
-const createCandidate = async (req, res) => {
+// CREATE or UPDATE candidate profile
+exports.createCandidate = async (req, res) => {
   try {
-    const {
+    const { fullName, email, phone, position } = req.body;
+    const resumeUrl = req.file ? req.file.path : null;
+
+    let candidate = await Candidate.findOne({ user: req.user._id });
+
+    // UPDATE EXISTING CANDIDATE
+    if (candidate) {
+      if (fullName) candidate.fullName = fullName;
+      if (email) candidate.email = email;
+      if (phone) candidate.phone = phone;
+      if (position) candidate.position = position;
+      if (resumeUrl) candidate.resumeUrl = resumeUrl;
+
+      await candidate.save();
+
+      return res.status(200).json({
+        success: true,
+        message: "Candidate updated",
+        candidate,
+      });
+    }
+
+    // CREATE NEW CANDIDATE
+    candidate = await Candidate.create({
+      user: req.user._id,
       fullName,
       email,
       phone,
       position,
-      skills,
-      experience,
-    } = req.body;
-
-    // ✅ Validate resume
-    if (!req.file) {
-      return res.status(400).json({
-        success: false,
-        error: "RESUME_REQUIRED",
-        message: "Resume file is required",
-      });
-    }
-
-    // ✅ Validate Supabase config
-    if (!process.env.SUPABASE_URL || !process.env.SUPABASE_ANON_KEY) {
-      return res.status(500).json({
-        success: false,
-        error: "SUPABASE_NOT_CONFIGURED",
-        message: "Supabase environment variables are missing",
-      });
-    }
-
-    const file = req.file;
-    const fileName = `resume-upload/${Date.now()}-${file.originalname}`;
-
-    // ✅ Upload resume to Supabase
-    const { error: uploadError } = await supabase.storage
-      .from("resumes")
-      .upload(fileName, file.buffer, {
-        contentType: file.mimetype,
-        upsert: false,
-      });
-
-    if (uploadError) {
-      return res.status(500).json({
-        success: false,
-        error: "FAILED_TO_UPLOAD_RESUME",
-        message: uploadError.message,
-      });
-    }
-
-    // ✅ Get public resume URL
-    const { data: publicUrlData } = supabase.storage
-      .from("resumes")
-      .getPublicUrl(fileName);
-
-    const resumeUrl = publicUrlData.publicUrl;
-
-    // ✅ Save candidate in MongoDB (status always APPLIED)
-    const candidate = await Candidate.create({
-      fullName,
-      email,
-      phone,
-      position,
-      skills: skills ? skills.split(",") : [],
-      experience: experience || 0,
       resumeUrl,
       status: "APPLIED",
     });
 
-    return res.status(201).json({
+    res.status(201).json({
       success: true,
-      message: "Candidate applied successfully",
-      data: candidate,
+      message: "Candidate created",
+      candidate,
     });
   } catch (error) {
-    console.error("Create candidate error:", error);
-
-    return res.status(500).json({
+    console.error(error);
+    res.status(500).json({
       success: false,
-      error: "INTERNAL_SERVER_ERROR",
-      message: error.message,
+      message: "Failed to create/update candidate",
     });
   }
 };
 
-/**
- * @desc    Update candidate status (Accept / Reject / Move flow)
- * @route   PATCH /api/candidates/:id/status
- */
-const updateCandidateStatus = async (req, res) => {
+// APPLY JOB
+exports.applyJob = async (req, res) => {
   try {
-    const { status } = req.body;
+    const { jobId } = req.params;
 
-    const candidate = await Candidate.findByIdAndUpdate(
-      req.params.id,
-      { status },
-      { new: true }
-    );
-
+    const candidate = await Candidate.findOne({ user: req.user._id });
     if (!candidate) {
-      return res.status(404).json({
+      return res.status(400).json({
         success: false,
-        error: "CANDIDATE_NOT_FOUND",
+        message: "Complete profile before applying",
       });
     }
 
-    return res.status(200).json({
+    const job = await Job.findById(jobId);
+    if (!job) {
+      return res.status(404).json({
+        success: false,
+        message: "Job not found",
+      });
+    }
+
+    candidate.job = jobId;
+    candidate.status = "APPLIED";
+    await candidate.save();
+
+    res.status(200).json({
       success: true,
-      message: "Candidate status updated",
-      data: candidate,
+      message: "Job applied successfully",
+      candidate,
     });
   } catch (error) {
-    return res.status(500).json({
+    console.error(error);
+    res.status(500).json({
       success: false,
-      error: "FAILED_TO_UPDATE_STATUS",
+      message: "Failed to apply job",
     });
   }
 };
 
 /**
- * @desc    Schedule interview (Add interview round)
- * @route   POST /api/candidates/:id/interview
+ * ===============================
+ * ADMIN CONTROLLERS
+ * ===============================
  */
-const scheduleInterview = async (req, res) => {
+
+// GET ALL candidates (Admin dashboard)
+exports.getAllCandidates = async (req, res) => {
+  try {
+    const candidates = await Candidate.find()
+      .populate("user", "name email")
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      data: {
+        candidates,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch candidates",
+    });
+  }
+};
+
+// UPDATE candidate status (manual override)
+exports.updateCandidateStatus = async (req, res) => {
+  try {
+    const { status } = req.body;
+
+    const candidate = await Candidate.findById(req.params.id);
+    if (!candidate) {
+      return res.status(404).json({
+        success: false,
+        message: "Candidate not found",
+      });
+    }
+
+    candidate.status = status;
+    await candidate.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Status updated",
+      candidate,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to update status",
+    });
+  }
+};
+
+// SCHEDULE INTERVIEW ROUND (HR / TECH / MANAGERIAL)
+exports.scheduleInterview = async (req, res) => {
   try {
     const { roundName, scheduledAt, interviewer } = req.body;
 
     const candidate = await Candidate.findById(req.params.id);
-
     if (!candidate) {
       return res.status(404).json({
         success: false,
-        error: "CANDIDATE_NOT_FOUND",
+        message: "Candidate not found",
       });
     }
 
@@ -184,113 +203,100 @@ const scheduleInterview = async (req, res) => {
     });
 
     candidate.status = "INTERVIEW_SCHEDULED";
+
     await candidate.save();
 
-    return res.status(200).json({
+    res.status(200).json({
       success: true,
       message: "Interview scheduled successfully",
-      data: candidate,
+      candidate,
     });
   } catch (error) {
-    return res.status(500).json({
+    console.error(error);
+    res.status(500).json({
       success: false,
-      error: "FAILED_TO_SCHEDULE_INTERVIEW",
+      message: "Failed to schedule interview",
     });
   }
 };
 
-/**
- * @desc    Update interview round result
- * @route   PATCH /api/candidates/:id/interview
- */
-const updateInterviewResult = async (req, res) => {
+// UPDATE INTERVIEW ROUND RESULT (PASS / FAIL / HOLD)
+exports.updateInterviewRound = async (req, res) => {
   try {
-    const { roundIndex, roundStatus, feedback } = req.body;
+    const { roundStatus, feedback } = req.body;
+    const { id, roundIndex } = req.params;
 
-    const candidate = await Candidate.findById(req.params.id);
-
+    const candidate = await Candidate.findById(id);
     if (!candidate) {
       return res.status(404).json({
         success: false,
-        error: "CANDIDATE_NOT_FOUND",
+        message: "Candidate not found",
       });
     }
 
     const round = candidate.interviewRounds[roundIndex];
-
     if (!round) {
-      return res.status(400).json({
+      return res.status(404).json({
         success: false,
-        error: "ROUND_NOT_FOUND",
+        message: "Interview round not found",
       });
     }
 
+    // Update round details
     round.roundStatus = roundStatus;
     round.feedback = feedback;
 
-    // ❌ If failed
+    // 🔥 AUTOMATIC PIPELINE LOGIC
     if (roundStatus === "FAILED") {
       candidate.status = "REJECTED";
-    }
-
-    // ✅ If passed
-    if (roundStatus === "PASSED") {
-      const allRoundsPassed = candidate.interviewRounds.every(
-        (r) => r.roundStatus === "PASSED"
-      );
-
-      candidate.status = allRoundsPassed ? "SELECTED" : "IN_PROGRESS";
+    } else if (roundStatus === "PASSED") {
+      if (candidate.interviewRounds.length >= 3) {
+        candidate.status = "SELECTED";
+      } else {
+        candidate.status = "IN_PROGRESS";
+      }
+    } else {
+      candidate.status = "ON_HOLD";
     }
 
     await candidate.save();
 
-    return res.status(200).json({
+    res.status(200).json({
       success: true,
-      message: "Interview round updated",
-      data: candidate,
+      message: "Interview round updated successfully",
+      candidate,
     });
   } catch (error) {
-    return res.status(500).json({
+    console.error(error);
+    res.status(500).json({
       success: false,
-      error: "FAILED_TO_UPDATE_INTERVIEW",
+      message: "Failed to update interview round",
     });
   }
 };
 
-/**
- * @desc    Delete candidate
- * @route   DELETE /api/candidates/:id
- */
-const deleteCandidate = async (req, res) => {
+// DELETE candidate
+exports.deleteCandidate = async (req, res) => {
   try {
     const candidate = await Candidate.findById(req.params.id);
-
     if (!candidate) {
       return res.status(404).json({
         success: false,
-        error: "CANDIDATE_NOT_FOUND",
+        message: "Candidate not found",
       });
     }
 
     await candidate.deleteOne();
 
-    return res.status(200).json({
+    res.status(200).json({
       success: true,
-      message: "Candidate deleted successfully",
+      message: "Candidate deleted",
     });
   } catch (error) {
-    return res.status(500).json({
+    console.error(error);
+    res.status(500).json({
       success: false,
-      error: "FAILED_TO_DELETE_CANDIDATE",
+      message: "Failed to delete candidate",
     });
   }
-};
-
-module.exports = {
-  getAllCandidates,
-  createCandidate,
-  updateCandidateStatus,
-  scheduleInterview,
-  updateInterviewResult,
-  deleteCandidate,
 };

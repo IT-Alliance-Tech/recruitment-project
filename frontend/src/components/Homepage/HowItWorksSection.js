@@ -13,9 +13,9 @@ const steps = [
   {
     icon: FileSearch,
     step: "02",
-    title: "Review & Screen",
+    title: "Shortlist Candidates",
     description:
-      "Review applications in your pipeline. Filter, sort, and move candidates through stages with drag-and-drop.",
+      "Evaluate applications, shortlist suitable candidates, and move them through the recruitment pipeline with clear status updates.",
   },
   {
     icon: Calendar,

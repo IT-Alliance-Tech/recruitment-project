@@ -75,3 +75,35 @@ exports.getMyApplications = async (req, res) => {
     });
   }
 };
+/**
+ * @desc Update application status (Admin)
+ * @route PATCH /api/applications/:id/status
+ * @access Protected
+ */
+exports.updateApplicationStatus = async (req, res) => {
+  try {
+    const { status } = req.body;
+
+    const application = await Application.findById(req.params.id);
+    if (!application) {
+      return res.status(404).json({
+        success: false,
+        message: "Application not found",
+      });
+    }
+
+    application.status = status;
+    await application.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Application status updated",
+      application,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Failed to update application status",
+    });
+  }
+};

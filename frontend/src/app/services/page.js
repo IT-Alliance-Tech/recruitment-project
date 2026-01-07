@@ -18,60 +18,60 @@ const services = [
   {
     id: "candidate-pipeline",
     icon: Users,
-    title: "Candidate Pipeline Management",
+    title: "Hiring Pipeline Management",
     description:
-      "Track every candidate from application to placement with our intuitive visual pipeline.",
+      "Manage and track candidates through every stage of the recruitment lifecycle with a structured hiring pipeline.",
     features: [
-      "Drag-and-drop kanban boards",
-      "Automated status updates",
-      "Candidate scoring system",
-      "Custom pipeline stages",
-      "Team collaboration tools",
+      "Applied, shortlisted, interviewed & hired stages",
+      "Drag-and-drop candidate movement",
+      "Clear candidate status tracking",
+      "Centralized candidate profiles",
+      "Recruiter collaboration support",
     ],
     link: "/pipeline",
   },
   {
-    id: "client-tracking",
+    id: "job-client-management",
     icon: BarChart3,
-    title: "Client Tracking",
+    title: "Job & Client Management",
     description:
-      "Manage all your recruitment clients and their requirements in one centralized dashboard.",
+      "Handle recruitment clients and job requirements efficiently from a single admin dashboard.",
     features: [
-      "Client portfolio management",
-      "Job requirement tracking",
-      "Placement history",
-      "Performance analytics",
-      "Custom reporting",
+      "Client-wise job requirement tracking",
+      "Open and closed position management",
+      "Hiring progress visibility",
+      "Placement history tracking",
+      "Client performance insights",
     ],
     link: "/clients",
   },
   {
-    id: "resume-upload",
+    id: "resume-management",
     icon: FileText,
-    title: "Resume Collection",
+    title: "Resume Management",
     description:
-      "Streamline resume collection with our easy-to-use upload forms and document management.",
+      "Collect, store, and organize candidate resumes securely with easy access for recruiters.",
     features: [
-      "PDF & DOC support",
-      "Resume parsing",
-      "Searchable database",
-      "Bulk upload option",
-      "Secure storage",
+      "Resume upload with PDF & DOC support",
+      "Candidate resume linking",
+      "Searchable resume database",
+      "Secure resume storage",
+      "Quick resume review access",
     ],
     link: "/resume-upload",
   },
   {
-    id: "interview-scheduling",
+    id: "interview-management",
     icon: Calendar,
-    title: "Interview Scheduling",
+    title: "Interview Scheduling & Tracking",
     description:
-      "Book interviews seamlessly with integrated calendar scheduling and automated reminders.",
+      "Schedule and manage interview rounds smoothly with built-in interview planning tools.",
     features: [
-      "Calendar integration",
-      "Automated reminders",
-      "Time zone support",
-      "Video call links",
-      "Rescheduling tools",
+      "HR, technical & managerial interview rounds",
+      "Interview date & time scheduling",
+      "Candidate interview status updates",
+      "Easy rescheduling support",
+      "Centralized interview calendar view",
     ],
     link: "/schedule",
   },
@@ -93,12 +93,12 @@ export default function Services() {
           </span>
 
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6">
-            Complete Recruitment <span className="text-teal-400">Solutions</span>
+            End-to-End <span className="text-teal-400">Recruitment Solutions</span>
           </h1>
 
           <p className="text-lg md:text-xl text-white/70 max-w-3xl mx-auto">
-            Everything you need to manage your recruitment process efficiently,
-            all in one powerful platform.
+            A complete recruitment management system designed to simplify hiring,
+            candidate tracking, and interview coordination.
           </p>
         </div>
       </section>
@@ -162,13 +162,14 @@ export default function Services() {
           </h2>
 
           <p className="text-gray-500 mb-8">
-            Book a free consultation to see how RecruitATS can transform your hiring process.
+            Book a free consultation to see how our recruitment platform can
+            streamline your hiring process.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-5 justify-center">
             <Link href="/resume-upload">
               <button className="px-8 py-4 bg-teal-500 hover:bg-teal-600 text-white font-semibold rounded-xl">
-                Apply now
+                Apply Now
               </button>
             </Link>
 

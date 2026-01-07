@@ -5,39 +5,39 @@ import { Users, FileText, Calendar, BarChart3, Zap, Shield } from "lucide-react"
 const features = [
   {
     icon: Users,
-    title: "Candidate Pipeline",
+    title: "Candidate Management",
     description:
-      "Track candidates through every stage of the hiring process with visual kanban boards and automated status updates.",
+      "Manage and track candidates across multiple hiring stages including applied, shortlisted, interviewed, selected, and rejected with a structured pipeline.",
   },
   {
     icon: BarChart3,
-    title: "Client Tracking",
+    title: "Client & Job Tracking",
     description:
-      "Manage all your recruitment clients in one place. Track requirements, positions, and placement success rates.",
+      "Track recruitment clients, job openings, and hiring requirements in one centralized dashboard with real-time status updates.",
   },
   {
     icon: FileText,
-    title: "Resume Upload",
+    title: "Resume Collection & Parsing",
     description:
-      "Easily collect and organize resumes with our intuitive upload system. Support for PDF, DOC, and DOCX formats.",
+      "Upload and organize resumes effortlessly with support for PDF, DOC, and DOCX formats, making candidate shortlisting faster and easier.",
   },
   {
     icon: Calendar,
     title: "Interview Scheduling",
     description:
-      "Seamless integration with calendars for easy interview scheduling. Automated reminders for all parties.",
+      "Schedule HR, technical, and managerial interview rounds seamlessly with calendar-based scheduling and reminders.",
   },
   {
     icon: Zap,
-    title: "Fast & Efficient",
+    title: "Automated Hiring Workflow",
     description:
-      "Reduce time-to-hire by up to 50% with automated workflows and intelligent candidate matching.",
+      "Reduce manual work with automated candidate flow, status updates, and streamlined hiring actions to speed up recruitment cycles.",
   },
   {
     icon: Shield,
-    title: "Secure & Compliant",
+    title: "Data Security & Compliance",
     description:
-      "Enterprise-grade security with GDPR compliance. Your data is encrypted and protected at all times.",
+      "Ensure candidate and client data is securely stored with role-based access, encryption, and compliance with data protection standards.",
   },
 ];
 
@@ -54,12 +54,12 @@ export default function FeaturesSection() {
 
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
             Everything You Need to{" "}
-            <span className="text-teal-500">Hire Smarter</span>
+            <span className="text-teal-500">Recruit Efficiently</span>
           </h2>
 
           <p className="text-lg text-gray-500">
-            Powerful tools designed to streamline your recruitment process from
-            sourcing to placement.
+            End-to-end recruitment tools designed to simplify candidate hiring,
+            interview management, and client coordination.
           </p>
         </div>
 

@@ -35,6 +35,23 @@ const interviewRoundSchema = new mongoose.Schema({
  */
 const candidateSchema = new mongoose.Schema(
   {
+    /**
+     * 🔗 LINK TO USER (IMPORTANT FOR USER DASHBOARD)
+     */
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+
+    /**
+     * 🔗 JOB APPLIED (IMPORTANT FOR APPLY JOB FLOW)
+     */
+    job: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Job",
+    },
+
     fullName: {
       type: String,
       required: true,

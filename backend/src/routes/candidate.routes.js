@@ -2,36 +2,58 @@ const express = require("express");
 const router = express.Router();
 
 const uploadResume = require("../middleware/upload.middleware");
+const authMiddleware = require("../middleware/auth.middleware");
 
 const {
   getAllCandidates,
   createCandidate,
   updateCandidateStatus,
-  scheduleInterview,
-  updateInterviewResult,
   deleteCandidate,
+  getMyCandidateProfile,
+  applyJob,
+  scheduleInterview,
+  updateInterviewRound, // ✅ ADD THIS
 } = require("../controllers/candidate.controller");
 
-// ✅ Get all candidates (Admin Pipeline)
-router.get("/", getAllCandidates);
+/**
+ * ===============================
+ * USER ROUTES
+ * ===============================
+ */
 
-// ✅ Create candidate with resume upload (Public)
+// Get logged-in user's candidate profile
+router.get("/me", authMiddleware, getMyCandidateProfile);
+
+// Create / update candidate with resume upload
 router.post(
   "/",
-  uploadResume.single("resume"), // MUST be "resume"
+  authMiddleware,
+  uploadResume.single("resume"),
   createCandidate
 );
 
-// ✅ Update candidate STATUS (Accept / Reject / Move flow)
+// Apply job
+router.post("/apply-job/:jobId", authMiddleware, applyJob);
+
+/**
+ * ===============================
+ * ADMIN ROUTES
+ * ===============================
+ */
+
+// Get all candidates (Admin dashboard)
+router.get("/", getAllCandidates);
+
+// Update candidate status (manual)
 router.patch("/:id/status", updateCandidateStatus);
 
-// ✅ Schedule interview (Add interview round)
+// Schedule interview (HR / Tech / Managerial)
 router.post("/:id/interview", scheduleInterview);
 
-// ✅ Update interview round result (Pass / Fail)
-router.patch("/:id/interview", updateInterviewResult);
+// ✅ UPDATE INTERVIEW ROUND RESULT (PASS / FAIL / HOLD)
+router.patch("/:id/interview/:roundIndex", updateInterviewRound);
 
-// ✅ Delete candidate
+// Delete candidate
 router.delete("/:id", deleteCandidate);
 
 module.exports = router;

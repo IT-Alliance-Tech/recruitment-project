@@ -1,10 +1,10 @@
 "use client";
 
 import { useSearchParams, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { Calendar, User, ArrowLeft } from "lucide-react";
 
-export default function ScheduleInterview() {
+function ScheduleInterviewContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -141,5 +141,21 @@ export default function ScheduleInterview() {
         </button>
       </div>
     </div>
+  );
+}
+
+// Wrap in Suspense boundary for useSearchParams
+export default function ScheduleInterview() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-slate-200 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    }>
+      <ScheduleInterviewContent />
+    </Suspense>
   );
 }
