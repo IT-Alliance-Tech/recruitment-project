@@ -1,7 +1,16 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Briefcase, MapPin, Users, Clock, Building2, Plus, Sparkles, TrendingUp } from "lucide-react";
+import {
+  Briefcase,
+  MapPin,
+  Users,
+  Clock,
+  Building2,
+  Plus,
+  Sparkles,
+  TrendingUp,
+} from "lucide-react";
 
 export default function AdminJobsPage() {
   const [jobs, setJobs] = useState([]);
@@ -79,276 +88,370 @@ export default function AdminJobsPage() {
   /* ================= UI ================= */
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/30">
-      <div className="max-w-7xl mx-auto p-6 md:p-10">
-        {/* HEADER */}
-        <div className="mb-10">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="p-2.5 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl shadow-sm">
-              <Briefcase className="text-white" size={28} />
-            </div>
-            <h1 className="text-4xl font-bold text-slate-900">Job Management</h1>
+    <div className="min-h-screen bg-[#f8fafc]">
+      {/* 💻 DESKTOP VIEW (lg and up) */}
+      <div className="hidden lg:block">
+        <div className="bg-[#0b1c33] px-12 py-10 flex justify-between items-end text-white relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl -mr-48 -mt-48" />
+          <div className="relative z-10 space-y-2">
+            <span className="text-[10px] font-black text-teal-400 uppercase tracking-[0.3em]">
+              Talent Acquisition
+            </span>
+            <h1 className="text-4xl font-black tracking-tighter uppercase">
+              Job Management
+            </h1>
+            <p className="text-gray-400 font-bold text-xs uppercase tracking-widest leading-relaxed">
+              Broadcast opportunities & architect your dream team
+            </p>
           </div>
-          <p className="text-slate-600 text-sm ml-14">Create and manage job openings for your organization</p>
+
+          <div className="relative z-10 flex gap-10">
+            <div className="text-right border-r-2 border-white/10 pr-10">
+              <p className="text-2xl font-black">{jobs.length}</p>
+              <p className="text-[8px] font-black text-gray-500 uppercase tracking-widest">
+                Postings
+              </p>
+            </div>
+            <div className="text-right">
+              <p className="text-2xl font-black">
+                {jobs.reduce(
+                  (sum, job) => sum + (parseInt(job.openings) || 0),
+                  0
+                )}
+              </p>
+              <p className="text-[8px] font-black text-gray-500 uppercase tracking-widest">
+                Total Slots
+              </p>
+            </div>
+          </div>
         </div>
 
-        {/* STATS CARDS */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-10">
-          <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-slate-600 font-medium mb-1">Total Jobs</p>
-                <p className="text-3xl font-bold text-slate-900">{jobs.length}</p>
+        <div className="max-w-[1400px] mx-auto px-12 py-12 grid grid-cols-12 gap-12">
+          {/* Left: Create Form */}
+          <div className="col-span-5 bg-white rounded-[3rem] p-10 border-2 border-slate-50 shadow-2xl shadow-gray-200/50">
+            <div className="flex items-center gap-4 mb-8">
+              <div className="w-12 h-12 rounded-xl bg-teal-500 flex items-center justify-center text-white shadow-xl shadow-teal-500/20">
+                <Plus size={24} />
               </div>
-              <div className="p-3 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 shadow-sm">
-                <Briefcase className="text-white" size={24} />
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
-            <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-slate-600 font-medium mb-1">Active Openings</p>
-                <p className="text-3xl font-bold text-slate-900">
-                  {jobs.reduce((sum, job) => sum + (parseInt(job.openings) || 0), 0)}
+                <h2 className="text-2xl font-black text-gray-900 leading-tight">
+                  Post New Role
+                </h2>
+                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                  Deployment Console
                 </p>
               </div>
-              <div className="p-3 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 shadow-sm">
-                <Users className="text-white" size={24} />
-              </div>
             </div>
-          </div>
 
-          <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-slate-600 font-medium mb-1">Recently Posted</p>
-                <p className="text-3xl font-bold text-slate-900">{jobs.slice(0, 5).length}</p>
-              </div>
-              <div className="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-600 shadow-sm">
-                <TrendingUp className="text-white" size={24} />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* CREATE JOB FORM */}
-        <div className="bg-white border border-gray-100 rounded-2xl p-8 mb-10 shadow-sm">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="p-2.5 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl shadow-sm">
-              <Plus className="text-white" size={22} />
-            </div>
-            <h2 className="text-2xl font-bold text-slate-900">Post a New Job</h2>
-          </div>
-
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Job Title <span className="text-red-500">*</span>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-2">
+                  Job Designation
                 </label>
                 <input
                   name="title"
-                  placeholder="e.g. Senior Frontend Developer"
                   value={form.title}
                   onChange={handleChange}
                   required
-                  className="w-full border border-gray-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 rounded-xl p-3 text-slate-900 placeholder-slate-400 transition-all outline-none"
+                  className="w-full px-6 py-4 bg-slate-50 rounded-2xl border-2 border-transparent focus:border-teal-500 focus:bg-white outline-none transition-all font-bold text-gray-900"
+                  placeholder="e.g. Lead Systems Architect"
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Company <span className="text-red-500">*</span>
-                </label>
-                <div className="relative">
-                  <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                  <input
-                    name="company"
-                    placeholder="Company name"
-                    value={form.company}
-                    onChange={handleChange}
-                    required
-                    className="w-full pl-11 border border-gray-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 rounded-xl p-3 text-slate-900 placeholder-slate-400 transition-all outline-none"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Location <span className="text-red-500">*</span>
-                </label>
-                <div className="relative">
-                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-2">
+                    Location
+                  </label>
                   <input
                     name="location"
-                    placeholder="e.g. New York, NY"
                     value={form.location}
                     onChange={handleChange}
                     required
-                    className="w-full pl-11 border border-gray-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 rounded-xl p-3 text-slate-900 placeholder-slate-400 transition-all outline-none"
+                    className="w-full px-6 py-4 bg-slate-50 rounded-2xl border-2 border-transparent focus:border-teal-500 focus:bg-white outline-none transition-all font-bold text-gray-900"
+                    placeholder="Global Remote"
                   />
                 </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Employment Type
-                </label>
-                <select
-                  name="employmentType"
-                  value={form.employmentType}
-                  onChange={handleChange}
-                  className="w-full border border-gray-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 rounded-xl p-3 text-slate-900 transition-all outline-none"
-                >
-                  <option>Full-Time</option>
-                  <option>Part-Time</option>
-                  <option>Contract</option>
-                  <option>Internship</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Experience Required
-                </label>
-                <div className="relative">
-                  <Clock className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                  <input
-                    name="experience"
-                    placeholder="e.g. 2–4 Years"
-                    value={form.experience}
-                    onChange={handleChange}
-                    className="w-full pl-11 border border-gray-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 rounded-xl p-3 text-slate-900 placeholder-slate-400 transition-all outline-none"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Number of Openings <span className="text-red-500">*</span>
-                </label>
-                <div className="relative">
-                  <Users className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-2">
+                    Slots
+                  </label>
                   <input
                     name="openings"
                     type="number"
-                    placeholder="e.g. 3"
                     value={form.openings}
                     onChange={handleChange}
                     required
-                    className="w-full pl-11 border border-gray-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 rounded-xl p-3 text-slate-900 placeholder-slate-400 transition-all outline-none"
+                    className="w-full px-6 py-4 bg-slate-50 rounded-2xl border-2 border-transparent focus:border-teal-500 focus:bg-white outline-none transition-all font-bold text-gray-900"
+                    placeholder="3"
                   />
                 </div>
               </div>
-            </div>
 
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">
-                Job Description <span className="text-red-500">*</span>
-              </label>
-              <textarea
-                name="description"
-                placeholder="Provide a detailed job description, responsibilities, and requirements..."
-                value={form.description}
-                onChange={handleChange}
-                required
-                className="w-full border border-gray-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 rounded-xl p-3 text-slate-900 placeholder-slate-400 transition-all outline-none resize-none"
-                rows={6}
-              />
-            </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-2">
+                    Experience
+                  </label>
+                  <input
+                    name="experience"
+                    value={form.experience}
+                    onChange={handleChange}
+                    className="w-full px-6 py-4 bg-slate-50 rounded-2xl border-2 border-transparent focus:border-teal-500 focus:bg-white outline-none transition-all font-bold text-gray-900"
+                    placeholder="5+ Years"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-2">
+                    Type
+                  </label>
+                  <select
+                    name="employmentType"
+                    value={form.employmentType}
+                    onChange={handleChange}
+                    className="w-full px-6 py-4 bg-slate-50 rounded-2xl border-2 border-transparent focus:border-teal-500 focus:bg-white outline-none transition-all font-bold text-gray-900"
+                  >
+                    <option>Full-Time</option>
+                    <option>Part-Time</option>
+                    <option>Contract</option>
+                    <option>Internship</option>
+                  </select>
+                </div>
+              </div>
 
-            <button
-              type="submit"
-              className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white py-3.5 rounded-xl font-semibold transition-all shadow-lg shadow-emerald-500/20 hover:shadow-xl hover:shadow-emerald-500/30 flex items-center justify-center gap-2"
-            >
-              <Plus className="w-5 h-5" />
-              Post Job Opening
-            </button>
-          </form>
-        </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-2">
+                  Core Brief
+                </label>
+                <textarea
+                  name="description"
+                  value={form.description}
+                  onChange={handleChange}
+                  required
+                  className="w-full px-6 py-4 bg-slate-50 rounded-2xl border-2 border-transparent focus:border-teal-500 focus:bg-white outline-none transition-all font-bold text-gray-900 resize-none h-32"
+                  placeholder="Define the mission..."
+                />
+              </div>
 
-        {/* JOB LIST */}
-        <div className="bg-white border border-gray-100 rounded-2xl p-8 shadow-sm">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="p-2.5 bg-gradient-to-br from-violet-500 to-purple-600 rounded-xl shadow-sm">
-              <Sparkles className="text-white" size={22} />
-            </div>
-            <h2 className="text-2xl font-bold text-slate-900">Posted Jobs</h2>
+              <button
+                type="submit"
+                className="w-full py-5 bg-[#0b1c33] text-white rounded-[2rem] font-black text-lg shadow-2xl hover:bg-black transition-all active:scale-95 flex items-center justify-center gap-3"
+              >
+                Activate Posting <Plus size={20} />
+              </button>
+            </form>
           </div>
 
-          {loading ? (
-            <div className="flex items-center justify-center py-20">
-              <div className="relative">
-                <div className="animate-spin rounded-full h-12 w-12 border-4 border-slate-200"></div>
-                <div className="animate-spin rounded-full h-12 w-12 border-4 border-t-slate-900 border-r-transparent border-b-transparent border-l-transparent absolute top-0 left-0"></div>
+          {/* Right: Jobs List */}
+          <div className="col-span-7 space-y-6">
+            <div className="flex items-center justify-between px-4">
+              <div>
+                <h2 className="text-2xl font-black text-gray-900 tracking-tight">
+                  Active Matrix
+                </h2>
+                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                  Propelled Postings
+                </p>
+              </div>
+              <div className="p-3 bg-slate-100 rounded-xl text-slate-400 hover:text-teal-500 transition-colors cursor-pointer">
+                <Sparkles size={24} />
               </div>
             </div>
-          ) : jobs.length === 0 ? (
-            <div className="text-center py-20">
-              <div className="inline-flex p-5 bg-slate-50 rounded-2xl mb-3">
-                <Briefcase className="text-slate-400" size={48} />
+
+            {loading ? (
+              <div className="py-20 text-center text-gray-400 font-black uppercase tracking-[0.3em] animate-pulse">
+                Syncing...
               </div>
-              <p className="text-slate-600 text-lg font-medium mb-1">No jobs posted yet</p>
-              <p className="text-slate-500 text-sm">Create your first job opening using the form above</p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {jobs.map((job) => (
-                <div
-                  key={job._id}
-                  className="group border border-gray-100 rounded-xl p-6 hover:border-slate-200 hover:shadow-sm transition-all duration-200"
-                >
-                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div className="flex-1">
-                      <div className="flex items-start gap-3 mb-3">
-                        <div className="p-2 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 mt-1">
-                          <Briefcase className="text-white" size={18} />
-                        </div>
-                        <div>
-                          <h3 className="font-semibold text-slate-900 text-lg group-hover:text-emerald-600 transition-colors">
-                            {job.title}
-                          </h3>
-                          <p className="text-sm text-slate-600 flex items-center gap-1 mt-1">
-                            <Building2 size={14} />
-                            {job.company}
+            ) : jobs.length === 0 ? (
+              <div className="py-20 text-center bg-white rounded-[3rem] border-2 border-dashed border-slate-200 text-gray-300 font-black uppercase tracking-widest">
+                Zero Roles Deployed
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {jobs.map((job) => (
+                  <div
+                    key={job._id}
+                    className="group bg-white rounded-[2.5rem] p-6 border-2 border-slate-50 hover:border-teal-500 shadow-xl shadow-gray-200/50 transition-all flex items-center justify-between"
+                  >
+                    <div className="flex items-center gap-6">
+                      <div className="w-14 h-14 rounded-2xl bg-slate-50 flex items-center justify-center text-teal-500 group-hover:bg-teal-500 group-hover:text-white transition-all shadow-lg shadow-gray-100 group-hover:shadow-teal-500/20">
+                        <Briefcase size={28} />
+                      </div>
+                      <div className="space-y-1">
+                        <h3 className="font-black text-gray-900 uppercase tracking-tight line-clamp-1">
+                          {job.title}
+                        </h3>
+                        <div className="flex items-center gap-3">
+                          <p className="text-[10px] font-black text-teal-600 uppercase tracking-widest">
+                            {job.location}
+                          </p>
+                          <span className="w-1 h-1 bg-slate-300 rounded-full" />
+                          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                            {job.employmentType}
                           </p>
                         </div>
                       </div>
-
-                      <div className="flex flex-wrap items-center gap-4 text-sm text-slate-600 ml-11">
-                        <span className="flex items-center gap-1.5">
-                          <MapPin size={14} />
-                          {job.location}
-                        </span>
-                        <span className="flex items-center gap-1.5">
-                          <Users size={14} />
-                          {job.openings} {job.openings === 1 ? 'opening' : 'openings'}
-                        </span>
-                        {job.experience && (
-                          <span className="flex items-center gap-1.5">
-                            <Clock size={14} />
-                            {job.experience}
-                          </span>
-                        )}
-                        <span className="px-3 py-1 bg-slate-100 text-slate-700 rounded-lg font-medium text-xs">
-                          {job.employmentType}
-                        </span>
+                    </div>
+                    <div className="flex items-center gap-6">
+                      <div className="text-right">
+                        <p className="text-lg font-black text-gray-900 leading-none">
+                          {job.openings}
+                        </p>
+                        <p className="text-[8px] font-black text-gray-400 uppercase">
+                          Slots
+                        </p>
+                      </div>
+                      <div className="px-5 py-2 bg-emerald-50 text-emerald-600 rounded-full text-[9px] font-black uppercase tracking-widest border-2 border-emerald-100">
+                        Active
                       </div>
                     </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
 
-                    <div className="flex items-center gap-3">
-                      <span className="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-50 text-emerald-700 rounded-lg font-semibold text-sm border border-emerald-200">
-                        <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-                        Active
-                      </span>
+      {/* 📱 MOBILE VIEW (md and below) */}
+      <div className="lg:hidden">
+        <div className="bg-[#0b1c33] px-6 pt-16 pb-32 rounded-b-[4rem] relative overflow-hidden text-center">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-teal-500/10 rounded-full -mr-32 -mt-32 blur-3xl" />
+          <div className="relative z-10 space-y-4">
+            <div className="space-y-1">
+              <span className="text-[10px] font-black text-teal-400 uppercase tracking-[0.3em]">
+                Talent Acquisition
+              </span>
+              <h1 className="text-4xl font-black text-white tracking-tighter uppercase">
+                Job <br />{" "}
+                <span className="text-teal-400 italic">Management.</span>
+              </h1>
+              <p className="text-[9px] font-bold text-gray-500 uppercase tracking-widest max-w-[250px] mx-auto leading-relaxed">
+                Broadcast opportunities & architect your dream team
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4 pt-2">
+              <div className="bg-white/10 px-5 py-3 rounded-2xl border border-white/20">
+                <p className="text-sm font-black text-white">{jobs.length}</p>
+                <p className="text-[8px] font-black text-teal-400 uppercase tracking-widest">
+                  Postings
+                </p>
+              </div>
+              <div className="bg-white/10 px-5 py-3 rounded-2xl border border-white/20">
+                <p className="text-sm font-black text-white">
+                  {jobs.reduce(
+                    (sum, job) => sum + (parseInt(job.openings) || 0),
+                    0
+                  )}
+                </p>
+                <p className="text-[8px] font-black text-teal-400 uppercase tracking-widest">
+                  Vacancies
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="px-6 -mt-20 space-y-8 pb-32 relative z-20">
+          {/* Mobile Post Job Form */}
+          <div className="bg-white rounded-[3rem] p-8 shadow-2xl shadow-gray-200/50 border border-slate-50 space-y-6">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-teal-500 flex items-center justify-center text-white shadow-lg">
+                <Plus size={20} />
+              </div>
+              <h2 className="text-xl font-black text-gray-900 uppercase tracking-tight">
+                Deploy Role
+              </h2>
+            </div>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-1">
+                <input
+                  name="title"
+                  value={form.title}
+                  onChange={handleChange}
+                  required
+                  className="w-full px-6 py-4 bg-slate-50 border-2 border-slate-100 focus:border-teal-500 focus:bg-white rounded-2xl font-bold text-gray-900 outline-none transition-all"
+                  placeholder="Target Title"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <input
+                  name="location"
+                  value={form.location}
+                  onChange={handleChange}
+                  required
+                  className="w-full px-5 py-4 bg-slate-50 border-2 border-slate-100 focus:border-teal-500 focus:bg-white rounded-2xl font-bold text-gray-900 outline-none transition-all"
+                  placeholder="Location"
+                />
+                <input
+                  name="openings"
+                  type="number"
+                  value={form.openings}
+                  onChange={handleChange}
+                  required
+                  className="w-full px-5 py-4 bg-slate-50 border-2 border-slate-100 focus:border-teal-500 focus:bg-white rounded-2xl font-bold text-gray-900 outline-none transition-all"
+                  placeholder="Slots"
+                />
+              </div>
+              <textarea
+                name="description"
+                value={form.description}
+                onChange={handleChange}
+                required
+                className="w-full px-6 py-4 bg-slate-50 border-2 border-slate-100 focus:border-teal-500 focus:bg-white rounded-2xl font-bold text-gray-900 outline-none resize-none h-28 transition-all"
+                placeholder="Core Briefing..."
+              />
+              <button
+                type="submit"
+                className="w-full py-5 bg-[#0b1c33] text-white rounded-[2rem] font-black text-sm uppercase tracking-widest shadow-xl shadow-[#0b1c33]/20 active:scale-95 transition-all"
+              >
+                Broadcast Job
+              </button>
+            </form>
+          </div>
+
+          {/* Mobile Job List */}
+          <div className="space-y-6">
+            <h3 className="text-lg font-black text-gray-900 px-4 tracking-tight uppercase">
+              Active Matrix
+            </h3>
+            <div className="space-y-4">
+              {loading ? (
+                <div className="p-10 text-center text-[10px] font-black text-gray-300 uppercase animate-pulse">
+                  Syncing...
+                </div>
+              ) : jobs.length === 0 ? (
+                <div className="p-20 text-center text-xs font-black text-gray-200">
+                  System Void
+                </div>
+              ) : (
+                jobs.map((job) => (
+                  <div
+                    key={job._id}
+                    className="bg-white rounded-[2rem] p-6 border-2 border-slate-50 shadow-xl shadow-gray-200/50 flex items-center justify-between group active:border-teal-500 transition-all"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-xl bg-slate-50 flex items-center justify-center text-teal-500 shadow-sm border border-slate-100">
+                        <Briefcase size={22} />
+                      </div>
+                      <div className="space-y-0.5">
+                        <p className="text-sm font-black text-gray-900 uppercase tracking-tight">
+                          {job.title}
+                        </p>
+                        <p className="text-[10px] font-black text-teal-600 uppercase tracking-widest">
+                          {job.location}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="px-3 py-1.5 bg-emerald-50 text-emerald-600 rounded-lg text-[8px] font-black uppercase border border-emerald-100 italic">
+                      Active
                     </div>
                   </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
-          )}
+          </div>
         </div>
       </div>
     </div>

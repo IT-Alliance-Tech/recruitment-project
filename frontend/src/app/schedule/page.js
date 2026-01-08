@@ -59,86 +59,174 @@ function ScheduleInterviewContent() {
   /* ================= UI ================= */
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center px-4">
-      <div className="bg-white w-full max-w-xl rounded-2xl shadow-xl p-8 border border-gray-200">
-        {/* HEADER */}
-        <div className="flex items-center gap-3 mb-6">
-          <button
-            onClick={() => router.back()}
-            className="p-2 hover:bg-gray-100 rounded-lg"
-          >
-            <ArrowLeft />
-          </button>
-          <h1 className="text-3xl font-bold text-gray-800">
-            Schedule Interview
+    <div className="min-h-screen bg-[#f8fafc] flex items-center justify-center p-6">
+      <div className="absolute top-0 left-0 w-full h-[40vh] bg-[#0b1c33] -z-10" />
+
+      {/* 💻 DESKTOP VIEW (lg and up) */}
+      <div className="hidden lg:block w-full max-w-2xl bg-white rounded-[3rem] shadow-2xl shadow-slate-200 border border-slate-100 overflow-hidden">
+        <div className="p-12 space-y-10">
+          <div className="flex items-center gap-6">
+            <button
+              onClick={() => router.back()}
+              className="w-14 h-14 rounded-2xl bg-slate-50 flex items-center justify-center text-gray-400 hover:text-teal-500 hover:bg-teal-50 transition-all"
+            >
+              <ArrowLeft size={24} />
+            </button>
+            <div className="space-y-1">
+              <h1 className="text-4xl font-black text-gray-900 tracking-tighter uppercase">
+                Protocol <span className="text-teal-500">Scheduled.</span>
+              </h1>
+              <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.4em]">
+                Node Assignment: {candidateId?.slice(-6).toUpperCase()}
+              </p>
+            </div>
+          </div>
+
+          <div className="space-y-8">
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-2">
+                Interview Phase
+              </label>
+              <select
+                value={form.roundName}
+                onChange={(e) =>
+                  setForm({ ...form, roundName: e.target.value })
+                }
+                className="w-full px-8 py-5 bg-slate-50 border-2 border-transparent focus:border-teal-500 focus:bg-white rounded-[2rem] font-bold text-gray-900 outline-none appearance-none transition-all"
+              >
+                <option value="HR">Alpha Round (HR)</option>
+                <option value="Technical">Beta Round (Technical)</option>
+                <option value="Managerial">Gamma Round (Managerial)</option>
+              </select>
+            </div>
+
+            <div className="grid grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-2">
+                  Temporal Node (Date & Time)
+                </label>
+                <div className="relative">
+                  <Calendar
+                    className="absolute left-6 top-1/2 -translate-y-1/2 text-teal-500"
+                    size={20}
+                  />
+                  <input
+                    type="datetime-local"
+                    value={form.scheduledAt}
+                    onChange={(e) =>
+                      setForm({ ...form, scheduledAt: e.target.value })
+                    }
+                    className="w-full pl-14 pr-8 py-5 bg-slate-50 border-2 border-transparent focus:border-teal-500 focus:bg-white rounded-[2rem] font-bold text-gray-900 outline-none transition-all"
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-2">
+                  Assigned Evaluator
+                </label>
+                <div className="relative">
+                  <User
+                    className="absolute left-6 top-1/2 -translate-y-1/2 text-teal-500"
+                    size={20}
+                  />
+                  <input
+                    placeholder="Identifier"
+                    value={form.interviewer}
+                    onChange={(e) =>
+                      setForm({ ...form, interviewer: e.target.value })
+                    }
+                    className="w-full pl-14 pr-8 py-5 bg-slate-50 border-2 border-transparent focus:border-teal-500 focus:bg-white rounded-[2rem] font-bold text-gray-900 outline-none transition-all"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <button
+              onClick={scheduleInterview}
+              disabled={loading}
+              className="w-full py-6 bg-[#0b1c33] text-white rounded-[2.5rem] font-black text-lg uppercase tracking-[0.2em] shadow-2xl hover:bg-black transition-all active:scale-95 disabled:opacity-50"
+            >
+              {loading ? "TRANSMITTING..." : "ENGAGE DEPLOYMENT"}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* 📱 MOBILE VIEW (md and below) */}
+      <div className="lg:hidden w-full space-y-12">
+        <div className="text-center space-y-4 mb-4">
+          <p className="text-[10px] font-black text-teal-400 uppercase tracking-[0.4em]">
+            Interview Protocol Alpha
+          </p>
+          <h1 className="text-5xl font-black text-white tracking-tighter uppercase leading-[0.8]">
+            Connect <br />{" "}
+            <span className="text-teal-400 italic">Sequence.</span>
           </h1>
         </div>
 
-        {/* FORM */}
-        <div className="space-y-5">
-          {/* ROUND */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Interview Round
-            </label>
-            <select
-              value={form.roundName}
-              onChange={(e) =>
-                setForm({ ...form, roundName: e.target.value })
-              }
-              className="w-full border-2 border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="HR">HR Round</option>
-              <option value="Technical">Technical Round</option>
-              <option value="Managerial">Managerial Round</option>
-            </select>
-          </div>
-
-          {/* DATE & TIME */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Interview Date & Time
-            </label>
-            <div className="relative">
-              <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+        <div className="bg-white rounded-[3rem] p-10 shadow-2xl shadow-slate-950/40 border border-slate-100 space-y-8 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-teal-500/5 rounded-full -mr-16 -mt-16 blur-2xl" />
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-4">
+                Round Phase
+              </label>
+              <select
+                value={form.roundName}
+                onChange={(e) =>
+                  setForm({ ...form, roundName: e.target.value })
+                }
+                className="w-full px-8 py-5 bg-slate-50 border-2 border-slate-100 focus:border-teal-500 focus:bg-white rounded-[2rem] font-black text-xs text-gray-900 outline-none appearance-none transition-all"
+              >
+                <option value="HR">Alpha Round (HR)</option>
+                <option value="Technical">Beta Round (Technical)</option>
+                <option value="Managerial">Gamma Round (Managerial)</option>
+              </select>
+            </div>
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-4">
+                Temporal Node
+              </label>
               <input
                 type="datetime-local"
                 value={form.scheduledAt}
                 onChange={(e) =>
                   setForm({ ...form, scheduledAt: e.target.value })
                 }
-                className="w-full pl-12 pr-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500"
+                className="w-full px-8 py-5 bg-slate-50 border-2 border-slate-100 focus:border-teal-500 focus:bg-white rounded-[2rem] font-black text-xs text-gray-900 outline-none transition-all"
               />
             </div>
-          </div>
-
-          {/* INTERVIEWER */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Interviewer Name
-            </label>
-            <div className="relative">
-              <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest px-4">
+                Assigned Proctor
+              </label>
               <input
-                placeholder="e.g. John HR"
+                placeholder="Identifier"
                 value={form.interviewer}
                 onChange={(e) =>
                   setForm({ ...form, interviewer: e.target.value })
                 }
-                className="w-full pl-12 pr-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500"
+                className="w-full px-8 py-5 bg-slate-50 border-2 border-slate-100 focus:border-teal-500 focus:bg-white rounded-[2rem] font-black text-xs text-gray-900 outline-none transition-all"
               />
             </div>
           </div>
-        </div>
 
-        {/* SUBMIT */}
-        <button
-          onClick={scheduleInterview}
-          disabled={loading}
-          className="w-full mt-8 bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 disabled:opacity-50"
-        >
-          {loading ? "Scheduling..." : "Schedule Interview"}
-        </button>
+          <div className="flex flex-col gap-4 pt-4">
+            <button
+              onClick={scheduleInterview}
+              disabled={loading}
+              className="w-full py-6 bg-[#0b1c33] text-white rounded-[2rem] font-black text-xs uppercase tracking-widest shadow-2xl active:scale-95 transition-all"
+            >
+              {loading ? "Transmitting..." : "Engage Deployment"}
+            </button>
+            <button
+              onClick={() => router.back()}
+              className="w-full py-6 bg-slate-50 text-slate-400 rounded-[2rem] font-black text-xs uppercase tracking-widest active:bg-slate-100 transition-all"
+            >
+              Abort Assignment
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -147,14 +235,16 @@ function ScheduleInterviewContent() {
 // Wrap in Suspense boundary for useSearchParams
 export default function ScheduleInterview() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-4 border-slate-200 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-16 w-16 border-4 border-slate-200 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading...</p>
+          </div>
         </div>
-      </div>
-    }>
+      }
+    >
       <ScheduleInterviewContent />
     </Suspense>
   );

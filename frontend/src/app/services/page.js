@@ -79,111 +79,159 @@ const services = [
 
 export default function Services() {
   return (
-    <>
-      <Header />
+    <div className="min-h-screen bg-white">
+      {/* 💻 DESKTOP VIEW (lg and up) */}
+      <div className="hidden lg:block">
+        {/* Hero */}
+        <section className="relative h-[65vh] flex items-center justify-center bg-[#0b1c33] overflow-hidden">
+          <div className="absolute top-0 right-0 w-[1000px] h-[1000px] bg-teal-500/10 rounded-full blur-3xl -mr-500 -mt-500" />
+          <div className="relative z-10 max-w-5xl mx-auto px-12 text-center space-y-8">
+            <span className="px-5 py-2 bg-teal-500/10 text-teal-400 text-xs font-black uppercase tracking-[0.4em] rounded-full border border-teal-500/20">
+              Operational Arsenal
+            </span>
+            <h1 className="text-8xl font-black text-white leading-tight tracking-tighter uppercase">
+              Recruitment <br />{" "}
+              <span className="text-teal-400 italic">Redefined.</span>
+            </h1>
+            <p className="text-gray-400 font-medium text-xl max-w-2xl mx-auto leading-relaxed">
+              A neural-grade suite of recruitment intelligence tools designed
+              for scale.
+            </p>
+          </div>
+        </section>
 
-      {/* HERO */}
-      <section className="relative min-h-[60vh] flex items-center justify-center overflow-hidden bg-gradient-to-br from-[#0b1c33] via-[#0f2f4f] to-[#0f4c5c]">
-        <div className="absolute -top-40 -left-40 w-[500px] h-[500px] bg-teal-400/20 rounded-full blur-[140px]" />
-        <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-cyan-400/20 rounded-full blur-[140px]" />
-
-        <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
-          <span className="inline-block px-5 py-2 rounded-full bg-white/10 border border-white/20 text-teal-300 text-sm font-medium mb-6">
-            Our Services
-          </span>
-
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6">
-            End-to-End <span className="text-teal-400">Recruitment Solutions</span>
-          </h1>
-
-          <p className="text-lg md:text-xl text-white/70 max-w-3xl mx-auto">
-            A complete recruitment management system designed to simplify hiring,
-            candidate tracking, and interview coordination.
-          </p>
-        </div>
-      </section>
-
-      {/* SERVICES GRID */}
-      <section className="py-14 md:py-18 bg-[#f8fafc]">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="grid lg:grid-cols-2 gap-8">
-            {services.map((service) => (
+        {/* Services Grid */}
+        <section className="py-32 bg-white">
+          <div className="max-w-7xl mx-auto px-12 grid grid-cols-2 gap-10">
+            {services.map((s, i) => (
               <div
-                key={service.id}
-                id={service.id}
-                className="bg-white rounded-3xl p-8 md:p-10 border border-gray-200 hover:border-teal-300 transition-all duration-300 hover:shadow-xl scroll-mt-28"
+                key={i}
+                id={s.id}
+                className="group bg-slate-50 rounded-[3rem] p-12 border-2 border-transparent hover:border-teal-500 hover:bg-white transition-all duration-500 flex flex-col justify-between scroll-mt-32"
               >
-                <div className="flex items-start gap-6">
-                  <div className="w-16 h-16 rounded-2xl bg-teal-100 flex items-center justify-center shrink-0">
-                    <service.icon className="w-8 h-8 text-teal-600" />
+                <div className="space-y-8">
+                  <div className="w-20 h-20 rounded-3xl bg-teal-500 flex items-center justify-center text-white shadow-2xl shadow-teal-500/20 group-hover:scale-110 transition-transform duration-500">
+                    <s.icon size={40} />
                   </div>
-
-                  <div className="flex-1">
-                    <h3 className="text-2xl font-bold text-gray-900 mb-3">
-                      {service.title}
+                  <div className="space-y-4">
+                    <h3 className="text-3xl font-black text-gray-900 tracking-tight uppercase">
+                      {s.title}
                     </h3>
-
-                    <p className="text-gray-500 mb-6">
-                      {service.description}
+                    <p className="text-gray-500 text-lg leading-relaxed">
+                      {s.description}
                     </p>
-
-                    <ul className="space-y-3 mb-8">
-                      {service.features.map((feature) => (
-                        <li key={feature} className="flex items-center gap-3">
-                          <div className="w-5 h-5 rounded-full bg-teal-500 flex items-center justify-center">
-                            <Check className="w-3 h-3 text-white" />
-                          </div>
-                          <span className="text-gray-700 text-sm">
-                            {feature}
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
-
-                    <Link href={service.link}>
-                      <button className="inline-flex items-center gap-2 px-6 py-3 bg-teal-500 hover:bg-teal-600 text-white font-semibold rounded-xl transition">
-                        Get Started
-                        <ArrowRight className="w-4 h-4" />
-                      </button>
-                    </Link>
                   </div>
+                  <ul className="space-y-3">
+                    {s.features.map((f, j) => (
+                      <li key={j} className="flex items-center gap-3">
+                        <div className="w-5 h-5 rounded-full bg-teal-500 flex items-center justify-center">
+                          <Check size={12} className="text-white" />
+                        </div>
+                        <span className="text-gray-600 font-bold text-sm uppercase tracking-wide">
+                          {f}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="mt-12 pt-8 border-t border-slate-200">
+                  <Link
+                    href={s.link}
+                    className="inline-flex items-center gap-3 text-teal-600 font-black text-sm uppercase tracking-widest hover:gap-5 transition-all"
+                  >
+                    Initiate Sequence <ArrowRight size={20} />
+                  </Link>
                 </div>
               </div>
             ))}
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* CTA */}
-      <section className="py-16 bg-white">
-        <div className="max-w-3xl mx-auto px-6 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-            Ready to Get Started?
-          </h2>
-
-          <p className="text-gray-500 mb-8">
-            Book a free consultation to see how our recruitment platform can
-            streamline your hiring process.
-          </p>
-
-          <div className="flex flex-col sm:flex-row gap-5 justify-center">
-            <Link href="/resume-upload">
-              <button className="px-8 py-4 bg-teal-500 hover:bg-teal-600 text-white font-semibold rounded-xl">
-                Apply Now
-              </button>
-            </Link>
-
-            <Link href="/contact">
-              <button className="px-8 py-4 border border-gray-300 text-gray-900 rounded-xl hover:bg-gray-100 flex items-center gap-2">
-                Contact Sales
-                <ArrowRight className="w-5 h-5" />
-              </button>
-            </Link>
+        {/* Bottom CTA */}
+        <section className="bg-[#0b1c33] py-32 relative overflow-hidden">
+          <div className="absolute inset-0 bg-teal-500/5 blur-3xl" />
+          <div className="relative z-10 max-w-4xl mx-auto px-12 text-center space-y-12">
+            <h2 className="text-6xl font-black text-white tracking-tighter uppercase leading-none">
+              Ready for <br /> <span className="text-teal-400">Next-Gen</span>{" "}
+              Hiring?
+            </h2>
+            <div className="flex gap-6 justify-center">
+              <Link
+                href="/resume-upload"
+                className="px-12 py-5 bg-teal-500 text-white rounded-full font-black text-lg shadow-2xl hover:scale-105 transition-all"
+              >
+                Quick Apply
+              </Link>
+              <Link
+                href="/contact"
+                className="px-12 py-5 bg-white/10 text-white rounded-full font-black text-lg border border-white/20 hover:bg-white/20 transition-all"
+              >
+                Request Demo
+              </Link>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </div>
+
+      {/* 📱 MOBILE VIEW (md and below) */}
+      <div className="lg:hidden">
+        {/* Mobile Hero */}
+        <section className="bg-[#0b1c33] px-8 pt-24 pb-32 text-center space-y-6 rounded-b-[4rem] relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-teal-500/10 rounded-full blur-3xl -mr-32 -mt-32" />
+          <span className="inline-block px-4 py-1.5 bg-teal-500/10 text-teal-400 text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-teal-500/20">
+            Operational Suite
+          </span>
+          <h1 className="text-4xl font-black text-white tracking-tighter leading-none uppercase">
+            Pure <br />{" "}
+            <span className="text-teal-400 italic font-black">Recruit.</span>
+          </h1>
+          <p className="text-gray-400 font-bold text-xs uppercase tracking-widest max-w-xs mx-auto">
+            Neural-Speed Talent Discovery
+          </p>
+        </section>
+
+        {/* Mobile Services */}
+        <section className="px-6 -mt-16 space-y-8 pb-32">
+          {services.map((s, i) => (
+            <div
+              key={i}
+              className="bg-white rounded-[3rem] p-8 shadow-2xl shadow-gray-200/50 border border-slate-50 space-y-8"
+            >
+              <div className="w-14 h-14 rounded-2xl bg-teal-500 flex items-center justify-center text-white">
+                <s.icon size={28} />
+              </div>
+              <div className="space-y-4">
+                <h3 className="text-2xl font-black text-gray-900 tracking-tight uppercase leading-none">
+                  {s.title}
+                </h3>
+                <p className="text-gray-500 text-sm font-medium">
+                  {s.description}
+                </p>
+                <ul className="space-y-3 pt-2">
+                  {s.features.slice(0, 3).map((f, j) => (
+                    <li key={j} className="flex items-center gap-3">
+                      <div className="w-4 h-4 rounded-full bg-teal-100 flex items-center justify-center">
+                        <Check size={10} className="text-teal-600" />
+                      </div>
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                        {f}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <Link
+                href={s.link}
+                className="flex items-center justify-center w-full py-4 bg-[#0b1c33] text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em]"
+              >
+                Deploy Now
+              </Link>
+            </div>
+          ))}
+        </section>
+      </div>
 
       <Footer />
-    </>
+    </div>
   );
 }
