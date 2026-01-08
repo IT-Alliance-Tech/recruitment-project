@@ -70,8 +70,8 @@ export default function About() {
               <span className="text-teal-400 italic">Talent Matrix.</span>
             </h1>
             <p className="text-gray-400 font-medium text-xl max-w-2xl mx-auto leading-relaxed">
-              We're on a mission to bridge the gap between human ambition and
-              organizational excellence through neural-speed matching.
+              We&apos;re on a mission to bridge the gap between human ambition
+              and organizational excellence through neural-speed matching.
             </p>
           </div>
         </section>

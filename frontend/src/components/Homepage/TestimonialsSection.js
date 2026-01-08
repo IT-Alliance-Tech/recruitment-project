@@ -10,7 +10,7 @@ const testimonials = [
     image:
       "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=face",
     content:
-      "RecruitATS has transformed our hiring process. We've reduced our time-to-hire by 45% and the quality of candidates has improved significantly.",
+      "RecruitATS has transformed our hiring process. We&apos;ve reduced our time-to-hire by 45% and the quality of candidates has improved significantly.",
     rating: 5,
   },
   {
@@ -20,7 +20,7 @@ const testimonials = [
     image:
       "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face",
     content:
-      "The candidate pipeline feature is a game-changer. We can now track every applicant's journey and never lose sight of promising talent.",
+      "The candidate pipeline feature is a game-changer. We can now track every applicant&apos;s journey and never lose sight of promising talent.",
     rating: 5,
   },
   {
@@ -80,6 +80,7 @@ export default function TestimonialsSection() {
               </p>
 
               <div className="flex items-center gap-5 pt-8 border-t border-gray-200/50">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={testimonial.image}
                   alt={testimonial.name}
@@ -122,6 +123,7 @@ export default function TestimonialsSection() {
                 “{testimonial.content}”
               </p>
 
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={testimonial.image}
                 alt={testimonial.name}

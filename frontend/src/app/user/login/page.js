@@ -235,7 +235,7 @@ export default function UserLogin() {
 
           <div className="text-center pt-8 border-t border-gray-100">
             <p className="text-sm font-bold text-gray-400">
-              Don't have an account?{" "}
+              Don&apos;t have an account?{" "}
               <span className="text-teal-500 font-black">Apply to any job</span>
             </p>
           </div>
