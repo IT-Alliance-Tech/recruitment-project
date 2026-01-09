@@ -30,7 +30,7 @@ export default function AdminJobsPage() {
 
   const fetchJobs = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/jobs");
+      const res = await fetch("https://recruitment-project-8tbs.onrender.com/api/jobs");
       const data = await res.json();
 
       if (data.success) {
@@ -57,7 +57,7 @@ export default function AdminJobsPage() {
     e.preventDefault();
 
     try {
-      const res = await fetch("http://localhost:5000/api/jobs", {
+      const res = await fetch("https://recruitment-project-8tbs.onrender.com/api/jobs", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
