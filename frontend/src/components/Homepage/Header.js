@@ -44,7 +44,7 @@ export default function Header() {
   const handleUserLogout = () => {
     localStorage.removeItem("token");
     setIsUser(false);
-    router.push("/user/login");
+    router.push("/user/signup");
   };
 
   return (
@@ -52,7 +52,7 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-6">
         <div className="flex items-center justify-between h-16 md:h-20">
 
-          {/* LOGO → HOME */}
+          {/* LOGO */}
           <Link href="/" className="flex items-center gap-2 cursor-pointer">
             <div className="w-10 h-10 rounded-xl bg-teal-500 flex items-center justify-center shadow-md">
               <Users className="w-5 h-5 text-white" />
@@ -86,17 +86,18 @@ export default function Header() {
               Apply Now
             </Link>
 
-            {/* -------- USER ACTIONS -------- */}
+            {/* LOGIN / SIGNUP */}
             {!isUser && !isAdmin && (
               <Link
-                href="/user/login"
+                href="/user/signup"
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-gray-300 text-gray-700 font-medium hover:bg-gray-100 transition"
               >
                 <LogIn className="w-4 h-4" />
-                User Login
+                Login / Signup
               </Link>
             )}
 
+            {/* USER ACTIONS */}
             {isUser && (
               <>
                 <Link
@@ -117,17 +118,7 @@ export default function Header() {
               </>
             )}
 
-            {/* -------- ADMIN ACTIONS -------- */}
-            {!isAdmin && !isUser && (
-              <Link
-                href="/login"
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-gray-300 text-gray-700 font-medium hover:bg-gray-100 transition"
-              >
-                <LogIn className="w-4 h-4" />
-                Admin Login
-              </Link>
-            )}
-
+            {/* ADMIN ACTIONS (NO ADMIN LOGIN BUTTON) */}
             {isAdmin && (
               <>
                 <Link
@@ -190,12 +181,12 @@ export default function Header() {
 
               {!isUser && !isAdmin && (
                 <Link
-                  href="/user/login"
+                  href="/user/signup"
                   className="mx-4 mt-2 inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl border border-gray-300 text-gray-700 font-medium hover:bg-gray-100 transition"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   <LogIn className="w-4 h-4" />
-                  User Login
+                  Login / Signup
                 </Link>
               )}
 
