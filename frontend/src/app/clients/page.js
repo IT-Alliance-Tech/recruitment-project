@@ -43,7 +43,7 @@ export default function Clients() {
     try {
       setLoading(true);
 
-      const res = await fetch("http://localhost:5000/api/clients");
+      const res = await fetch("https://recruitment-project-8tbs.onrender.com/api/clients");
       const json = await res.json();
 
       if (!json.success) {
@@ -84,7 +84,7 @@ export default function Clients() {
 
   const addClient = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/clients", {
+      const res = await fetch("https://recruitment-project-8tbs.onrender.com/api/clients", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
@@ -118,7 +118,7 @@ export default function Clients() {
     if (!confirm("Are you sure you want to delete this client?")) return;
 
     try {
-      await fetch(`http://localhost:5000/api/clients/${id}`, {
+      await fetch(`https://recruitment-project-8tbs.onrender.com/api/clients/${id}`, {
         method: "DELETE",
       });
       fetchClients();

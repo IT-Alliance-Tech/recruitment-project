@@ -24,7 +24,7 @@ export default function Contact() {
     e.preventDefault();
 
     try {
-      const res = await fetch("http://localhost:5000/api/contact", {
+      const res = await fetch("https://recruitment-project-8tbs.onrender.com/api/contact", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

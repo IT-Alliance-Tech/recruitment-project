@@ -74,7 +74,7 @@ export default function ResumeUpload() {
       }
 
       // ✅ USE EXISTING API ONLY
-      const response = await fetch("http://localhost:5000/api/candidates", {
+      const response = await fetch("https://recruitment-project-8tbs.onrender.com/api/candidates", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,

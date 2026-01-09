@@ -21,7 +21,7 @@ export default function UserJobsPage() {
   useEffect(() => {
     const fetchJobs = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/jobs");
+        const res = await fetch("https://recruitment-project-8tbs.onrender.com/api/jobs");
         const data = await res.json();
 
         console.log("RAW JOB API RESPONSE:", data);
