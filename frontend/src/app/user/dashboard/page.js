@@ -21,7 +21,7 @@ import { apiFetch } from "@/utils/api";
 import { getToken } from "@/utils/auth";
 
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+  process.env.NEXT_PUBLIC_API_URL || "https://recruitment-project-8tbs.onrender.com/api";
 
 export default function UserDashboard() {
   const [user, setUser] = useState(null);

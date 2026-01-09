@@ -30,7 +30,7 @@ function ScheduleInterviewContent() {
       setLoading(true);
 
       const res = await fetch(
-        `http://localhost:5000/api/candidates/${candidateId}/interview`,
+        `https://recruitment-project-8tbs.onrender.com/api/candidates/${candidateId}/interview`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
