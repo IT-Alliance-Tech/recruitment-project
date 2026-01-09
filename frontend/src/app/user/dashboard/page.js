@@ -20,7 +20,8 @@ import {
 import { apiFetch } from "@/utils/api";
 import { getToken } from "@/utils/auth";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
 export default function UserDashboard() {
   const [user, setUser] = useState(null);
@@ -38,15 +39,31 @@ export default function UserDashboard() {
         }
 
         try {
-          const candidateRes = await apiFetch("/candidates/me", { 
-            cache: "no-store" 
+          // ✅ CRITICAL: Disable caching to ensure fresh data for count calculations
+          // Without cache: "no-store", 304 responses can cause stale data to display
+          const candidateRes = await apiFetch("/candidates/me", {
+            cache: "no-store",
           });
-          console.log("Candidate Response:", candidateRes);
-          if (candidateRes.success && candidateRes.candidates && Array.isArray(candidateRes.candidates)) {
+          console.log("🔍 Candidate Response received:", candidateRes);
+          console.log("🔍 Candidates array:", candidateRes.candidates);
+          
+          // ✅ CHANGE: Store entire candidates array
+          // Backend returns { success: true, candidates: [...] }
+          if (
+            candidateRes.success &&
+            candidateRes.candidates &&
+            Array.isArray(candidateRes.candidates)
+          ) {
+            // Store ALL candidates for count calculations
+            console.log("✅ Setting candidates:", candidateRes.candidates.length, "items");
             setCandidates(candidateRes.candidates);
+          } else {
+            console.warn("⚠️ Invalid candidate response format:", candidateRes);
+            setCandidates([]);
           }
         } catch (error) {
-          console.log("No candidate data found (user hasn't applied yet)");
+          console.log("❌ No candidate data found (user hasn't applied yet):", error);
+          setCandidates([]);
         }
       } catch (error) {
         console.error("Dashboard fetch error:", error);
@@ -61,17 +78,28 @@ export default function UserDashboard() {
     fetchDashboardData();
   }, []);
 
+  // ✅ DEBUG: Log whenever candidates state changes
+  useEffect(() => {
+    console.log("🎯 Candidates state updated:", candidates);
+    console.log("🎯 Candidates length:", candidates.length);
+  }, [candidates]);
+
   const handleResumeUpload = async (file) => {
     if (!file) return;
 
-    const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+    // Validate file type
+    const allowedTypes = [
+      "application/pdf",
+      "application/msword",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    ];
     if (!allowedTypes.includes(file.type)) {
-      alert('Please upload a PDF or DOC file');
+      alert("Please upload a PDF or DOC file");
       return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      alert('File size must be less than 5MB');
+      alert("File size must be less than 5MB");
       return;
     }
 
@@ -79,12 +107,12 @@ export default function UserDashboard() {
 
     try {
       const formData = new FormData();
-      formData.append('resume', file);
+      formData.append("resume", file);
 
       const token = getToken();
-      
+
       const response = await fetch(`${API_BASE_URL}/auth/resume`, {
-        method: 'PATCH',
+        method: "PATCH",
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -95,14 +123,16 @@ export default function UserDashboard() {
       console.log("Upload response:", data);
 
       if (data.success) {
-        alert('Resume uploaded successfully!');
+        alert("Resume uploaded successfully!");
+
+        // Refresh the page to show updated data
         window.location.reload();
       } else {
-        alert(data.message || 'Failed to upload resume');
+        alert(data.message || "Failed to upload resume");
       }
     } catch (error) {
-      console.error('Upload error:', error);
-      alert('Failed to upload resume. Please try again.');
+      console.error("Upload error:", error);
+      alert("Failed to upload resume. Please try again.");
     } finally {
       setUploading(false);
     }
@@ -123,299 +153,412 @@ export default function UserDashboard() {
   }
 
   const appliedCount = candidates.filter((c) => c.status === "APPLIED").length;
-  const shortlistedCount = candidates.filter((c) => c.status === "SHORTLISTED").length;
-  const rejectedCount = candidates.filter((c) => c.status === "REJECTED").length;
+  const shortlistedCount = candidates.filter(
+    (c) => c.status === "SHORTLISTED"
+  ).length;
+  const rejectedCount = candidates.filter(
+    (c) => c.status === "REJECTED"
+  ).length;
+
+  // ✅ DEBUG: Log all candidates and their statuses
+  console.log("📊 Dashboard Candidates:", candidates);
+  console.log("📈 Stats - Applied:", appliedCount, "Shortlisted:", shortlistedCount, "Rejected:", rejectedCount);
 
   const firstCandidate = candidates.length > 0 ? candidates[0] : null;
   const resumeUrl = user?.resumeUrl || firstCandidate?.resumeUrl;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
-      {/* Decorative Elements */}
-      <div className="fixed top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
-        <div className="absolute top-40 right-10 w-72 h-72 bg-pink-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
-        <div className="absolute bottom-20 left-1/2 w-72 h-72 bg-indigo-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000"></div>
-      </div>
-
-      <div className="relative max-w-7xl mx-auto px-4 md:px-6 py-10">
-        {/* Welcome Header */}
-        <div className="mb-12 text-center">
-          <div className="inline-block mb-4">
-            <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full blur-lg opacity-50 animate-pulse"></div>
-              <div className="relative bg-white p-4 rounded-full shadow-xl">
-                <User className="w-12 h-12 text-purple-600" />
-              </div>
+    <div className="min-h-screen bg-[#f8fafc]">
+      {/* 💻 DESKTOP DASHBOARD (lg and up) */}
+      <div className="hidden lg:block max-w-[1400px] mx-auto px-8 py-12">
+        {/* Header */}
+        <div className="flex justify-between items-end mb-12">
+          <div>
+            <h1 className="text-5xl font-black text-gray-900 mb-3 tracking-tight">
+              Welcome back,{" "}
+              <span className="text-teal-600">
+                {user?.name?.split(" ")[0] || "Candidate"}
+              </span>
+            </h1>
+            <p className="text-gray-500 font-bold uppercase tracking-widest text-sm">
+              Candidate Productivity Dashboard
+            </p>
+          </div>
+          <div className="px-6 py-3 bg-white rounded-2xl border-2 border-slate-100 shadow-sm flex items-center gap-4">
+            <div className="w-10 h-10 rounded-xl bg-teal-50 flex items-center justify-center">
+              <Calendar className="w-5 h-5 text-teal-600" />
+            </div>
+            <div className="text-right">
+              <p className="text-[10px] font-black text-gray-400 uppercase tracking-tighter">
+                Current Date
+              </p>
+              <p className="text-sm font-black text-gray-900">
+                {new Date().toLocaleDateString("en-US", {
+                  month: "long",
+                  day: "numeric",
+                  year: "numeric",
+                })}
+              </p>
             </div>
           </div>
-          <h1 className="text-5xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 mb-3 animate-gradient">
-            Welcome, {user?.name || "User"}!
-          </h1>
-          <p className="text-lg text-gray-600 font-medium">Your career journey starts here</p>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-12">
-          <StatCard 
-            title="Applied Jobs" 
-            value={appliedCount} 
+        {/* Top Stats Grid */}
+        <div className="grid grid-cols-4 gap-6 mb-12">
+          <StatCard
+            title="Applications"
+            value={appliedCount}
             icon={TrendingUp}
-            gradient="from-blue-500 via-cyan-500 to-teal-500"
-            glowColor="blue"
+            gradient="from-blue-600 to-blue-400"
           />
-          <StatCard 
-            title="Shortlisted" 
-            value={shortlistedCount} 
+          <StatCard
+            title="Shortlisted"
+            value={shortlistedCount}
             icon={Award}
-            gradient="from-emerald-500 via-green-500 to-teal-500"
-            glowColor="emerald"
+            gradient="from-teal-600 to-teal-400"
           />
-          <StatCard 
-            title="Rejected" 
-            value={rejectedCount} 
+          <StatCard
+            title="Rejected"
+            value={rejectedCount}
             icon={XCircle}
-            gradient="from-rose-500 via-pink-500 to-red-500"
-            glowColor="rose"
+            gradient="from-rose-600 to-rose-400"
           />
-        </div>
-
-        {/* Profile & Resume Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
-          {/* Profile Card */}
-          <div className="group relative bg-white/80 backdrop-blur-xl border-2 border-white rounded-3xl p-8 shadow-2xl hover:shadow-purple-200/50 transition-all duration-500 hover:-translate-y-2">
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-pink-500/5 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-            
-            <div className="relative">
-              <div className="flex items-center gap-4 mb-8">
-                <div className="relative">
-                  <div className="absolute inset-0 bg-gradient-to-br from-violet-500 to-purple-600 rounded-2xl blur opacity-50"></div>
-                  <div className="relative p-3 bg-gradient-to-br from-violet-500 to-purple-600 rounded-2xl shadow-lg">
-                    <User className="w-6 h-6 text-white" />
-                  </div>
-                </div>
-                <h2 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                  Profile Details
-                </h2>
-              </div>
-
-              <div className="space-y-5">
-                <div className="group/item relative overflow-hidden p-5 bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl border-2 border-purple-100 hover:border-purple-300 transition-all duration-300">
-                  <div className="absolute inset-0 bg-gradient-to-r from-purple-600/5 to-pink-600/5 translate-x-[-100%] group-hover/item:translate-x-0 transition-transform duration-500"></div>
-                  <div className="relative flex items-center gap-4">
-                    <div className="p-3 bg-white rounded-xl shadow-md">
-                      <Mail className="w-5 h-5 text-purple-600" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-xs text-purple-600 font-bold uppercase tracking-wide mb-1">Email Address</p>
-                      <p className="text-gray-900 font-semibold text-lg">{user?.email}</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="group/item relative overflow-hidden p-5 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-2xl border-2 border-indigo-100 hover:border-indigo-300 transition-all duration-300">
-                  <div className="absolute inset-0 bg-gradient-to-r from-indigo-600/5 to-purple-600/5 translate-x-[-100%] group-hover/item:translate-x-0 transition-transform duration-500"></div>
-                  <div className="relative flex items-center gap-4">
-                    <div className="p-3 bg-white rounded-xl shadow-md">
-                      <Phone className="w-5 h-5 text-indigo-600" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-xs text-indigo-600 font-bold uppercase tracking-wide mb-1">Phone Number</p>
-                      <p className="text-gray-900 font-semibold text-lg">{user?.phone || firstCandidate?.phone || "Not provided"}</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="group/item relative overflow-hidden p-5 bg-gradient-to-r from-pink-50 to-rose-50 rounded-2xl border-2 border-pink-100 hover:border-pink-300 transition-all duration-300">
-                  <div className="absolute inset-0 bg-gradient-to-r from-pink-600/5 to-rose-600/5 translate-x-[-100%] group-hover/item:translate-x-0 transition-transform duration-500"></div>
-                  <div className="relative flex items-center gap-4">
-                    <div className="p-3 bg-white rounded-xl shadow-md">
-                      <Briefcase className="w-5 h-5 text-pink-600" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-xs text-pink-600 font-bold uppercase tracking-wide mb-1">Applied Position</p>
-                      <p className="text-gray-900 font-semibold text-lg">{firstCandidate?.position || "Not applied yet"}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
+          <div className="bg-[#0b1c33] rounded-3xl p-6 text-white flex flex-col justify-between shadow-xl">
+            <div className="flex justify-between items-start">
+              <span className="text-xs font-bold uppercase tracking-widest opacity-60">
+                Offer Status
+              </span>
+              <CheckCircle className="text-teal-400 w-5 h-5" />
+            </div>
+            <div>
+              <p className="text-3xl font-black">0 Pending</p>
+              <p className="text-[10px] opacity-40 uppercase tracking-tighter font-bold mt-1">
+                Ready for next steps
+              </p>
             </div>
           </div>
+        </div>
 
-          {/* Resume Card */}
-          <div className="group relative bg-white/80 backdrop-blur-xl border-2 border-white rounded-3xl p-8 shadow-2xl hover:shadow-emerald-200/50 transition-all duration-500 hover:-translate-y-2">
-            <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-teal-500/5 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-            
-            <div className="relative">
+        <div className="grid grid-cols-3 gap-8">
+          {/* Left Sidebar Info */}
+          <div className="space-y-8">
+            {/* Profile Brief */}
+            <div className="bg-white rounded-[2rem] p-8 border-2 border-slate-50 shadow-xl shadow-gray-200/50">
               <div className="flex items-center gap-4 mb-8">
-                <div className="relative">
-                  <div className="absolute inset-0 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl blur opacity-50"></div>
-                  <div className="relative p-3 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl shadow-lg">
-                    <FileText className="w-6 h-6 text-white" />
-                  </div>
+                <div className="w-14 h-14 rounded-2xl bg-teal-500 flex items-center justify-center shadow-lg">
+                  <User className="text-white w-7 h-7" />
                 </div>
-                <h2 className="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
-                  Your Resume
-                </h2>
+                <div>
+                  <h3 className="text-xl font-black text-gray-900">Profile</h3>
+                  <p className="text-xs font-bold text-teal-600 uppercase tracking-widest">
+                    General Info
+                  </p>
+                </div>
               </div>
 
               <div className="space-y-6">
-                {resumeUrl ? (
-                  <div className="relative overflow-hidden p-6 bg-gradient-to-br from-emerald-50 to-teal-50 border-2 border-emerald-200 rounded-2xl">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-300 rounded-full blur-3xl opacity-20"></div>
-                    <div className="relative flex items-start gap-4 mb-6">
-                      <div className="p-3 bg-emerald-100 rounded-xl shadow-md">
-                        <CheckCircle className="w-6 h-6 text-emerald-600" />
-                      </div>
-                      <div className="flex-1">
-                        <p className="text-sm font-bold text-emerald-900 mb-1">Resume Successfully Uploaded</p>
-                        <p className="text-xs text-emerald-700">Your profile is complete and visible to recruiters</p>
-                      </div>
-                    </div>
-                    
-                    <div className="relative flex gap-3">
-                      <a
-                        href={resumeUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-semibold text-sm transition-all duration-300 shadow-lg hover:shadow-emerald-500/50 hover:-translate-y-0.5"
-                        onClick={() => {
-                          console.log("Opening resume URL:", resumeUrl);
-                        }}
-                      >
-                        <Eye className="w-4 h-4" />
-                        View Resume
-                      </a>
-                      <a
-                        href={resumeUrl}
-                        download
-                        className="inline-flex items-center justify-center gap-2 px-4 py-3 bg-white hover:bg-emerald-50 text-emerald-700 border-2 border-emerald-200 rounded-xl font-semibold text-sm transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-0.5"
-                      >
-                        <Download className="w-4 h-4" />
-                      </a>
-                    </div>
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center shrink-0">
+                    <Mail className="w-4 h-4 text-slate-400" />
                   </div>
-                ) : (
-                  <div className="relative overflow-hidden p-8 bg-gradient-to-br from-gray-50 to-slate-50 border-2 border-dashed border-gray-300 rounded-2xl text-center group/upload hover:border-purple-400 transition-all duration-300">
-                    <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-pink-500/5 opacity-0 group-hover/upload:opacity-100 transition-opacity duration-300"></div>
-                    <div className="relative">
-                      <div className="inline-flex p-4 bg-gradient-to-br from-gray-100 to-slate-100 rounded-2xl mb-4 group-hover/upload:scale-110 transition-transform duration-300">
-                        <Upload className="w-8 h-8 text-gray-400 group-hover/upload:text-purple-600 transition-colors" />
-                      </div>
-                      <p className="text-gray-700 font-bold mb-2">No Resume Yet</p>
-                      <p className="text-gray-500 text-sm">Upload your resume to unlock opportunities</p>
-                    </div>
+                  <div className="truncate">
+                    <p className="text-[10px] font-black text-gray-400 uppercase">
+                      Email
+                    </p>
+                    <p className="text-sm font-bold text-gray-900 truncate">
+                      {user?.email}
+                    </p>
                   </div>
-                )}
-
-                <label className={`relative overflow-hidden w-full inline-flex items-center justify-center gap-3 px-6 py-4 rounded-2xl font-bold text-base transition-all duration-300 ${
-                  uploading 
-                    ? 'bg-gray-400 text-white cursor-wait' 
-                    : 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white cursor-pointer hover:from-emerald-700 hover:to-teal-700 shadow-lg hover:shadow-emerald-500/50 hover:-translate-y-1 active:scale-95'
-                }`}>
-                  <div className="absolute inset-0 bg-white opacity-0 hover:opacity-10 transition-opacity"></div>
-                  <Upload className="w-5 h-5 relative z-10" />
-                  <span className="relative z-10">{uploading ? 'Uploading...' : 'Upload New Resume'}</span>
-                  <input
-                    type="file"
-                    hidden
-                    accept=".pdf,.doc,.docx"
-                    onChange={(e) => handleResumeUpload(e.target.files[0])}
-                    disabled={uploading}
-                  />
-                </label>
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center shrink-0">
+                    <Phone className="w-4 h-4 text-slate-400" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-black text-gray-400 uppercase">
+                      Contact
+                    </p>
+                    <p className="text-sm font-bold text-gray-900">
+                      {user?.phone || firstCandidate?.phone || "N/A"}
+                    </p>
+                  </div>
+                </div>
               </div>
+            </div>
+
+            {/* Resume Quick Action */}
+            <div className="bg-teal-600 rounded-[2rem] p-8 text-white shadow-xl shadow-teal-500/20">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center">
+                  <FileText className="text-white w-6 h-6" />
+                </div>
+                <h3 className="text-lg font-black">Resume Hub</h3>
+              </div>
+
+              {resumeUrl ? (
+                <div className="space-y-4">
+                  <p className="text-sm text-teal-100 font-medium leading-relaxed">
+                    Your professional profile is active and visible to
+                    recruiters.
+                  </p>
+                  <a
+                    href={resumeUrl}
+                    target="_blank"
+                    className="flex items-center justify-center gap-2 py-3 bg-white text-teal-700 rounded-xl font-black text-sm hover:scale-105 transition-transform"
+                  >
+                    <Upload className="w-4 h-4" /> View Current
+                  </a>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <p className="text-sm text-teal-100 font-medium">
+                    No resume found. Uploading one increases hire probability by
+                    80%.
+                  </p>
+                </div>
+              )}
+
+              <label className="mt-4 flex items-center justify-center gap-2 py-3 bg-[#0b1c33] text-white rounded-xl font-black text-sm cursor-pointer hover:bg-black transition-colors">
+                <Upload className="w-4 h-4" />{" "}
+                {uploading ? "Wait..." : "Upload New"}
+                <input
+                  type="file"
+                  hidden
+                  accept=".pdf,.doc,.docx"
+                  onChange={(e) => handleResumeUpload(e.target.files[0])}
+                  disabled={uploading}
+                />
+              </label>
+            </div>
+          </div>
+
+          {/* Main Feed: Applications */}
+          <div className="col-span-2 space-y-6">
+            <div className="bg-white rounded-[2.5rem] p-10 border-2 border-slate-50 shadow-xl shadow-gray-200/50">
+              <div className="flex items-center justify-between mb-10">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-2xl bg-blue-500/10 flex items-center justify-center">
+                    <Briefcase className="text-blue-600 w-6 h-6" />
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-black text-gray-900">
+                      Application Status
+                    </h3>
+                    <p className="text-xs font-bold text-blue-600 uppercase tracking-widest">
+                      Live Updates
+                    </p>
+                  </div>
+                </div>
+                <div className="bg-slate-100 px-4 py-1.5 rounded-full text-[10px] font-black text-slate-500 uppercase">
+                  {candidates.length} Applications Total
+                </div>
+              </div>
+
+              {candidates.length === 0 ? (
+                <div className="text-center py-20 bg-slate-50 rounded-3xl border-2 border-dashed border-slate-200">
+                  <p className="text-gray-400 font-bold italic">
+                    No active applications currently
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-8">
+                  {candidates.map((app) => (
+                    <div
+                      key={app._id}
+                      className="group p-6 bg-white border-2 border-slate-50 rounded-3xl hover:border-teal-100 hover:shadow-lg transition-all"
+                    >
+                      <div className="flex justify-between items-start">
+                        <div className="space-y-1">
+                          <h4 className="text-xl font-black text-gray-900">
+                            {app.job?.title || app.position}
+                          </h4>
+                          <div className="flex items-center gap-4">
+                            <p className="text-sm font-bold text-teal-600">
+                              {app.job?.company || "Global Hiring"}
+                            </p>
+                            <span className="w-1 h-1 rounded-full bg-slate-300" />
+                            <p className="text-xs text-gray-400 font-bold uppercase tracking-widest">
+                              Applied{" "}
+                              {new Date(app.appliedDate).toLocaleDateString()}
+                            </p>
+                          </div>
+                        </div>
+                        <StatusBadge status={app.status} />
+                      </div>
+
+                      {app.interviewRounds?.length > 0 && (
+                        <div className="mt-8 pt-6 border-t border-slate-100 flex gap-4 overflow-x-auto pb-2">
+                          {app.interviewRounds.map((round, idx) => (
+                            <div
+                              key={idx}
+                              className="shrink-0 bg-slate-50 p-4 rounded-2xl border border-slate-100 min-w-[200px]"
+                            >
+                              <div className="flex items-center gap-2 mb-2">
+                                <span className="w-6 h-6 rounded-lg bg-teal-500 text-white text-[10px] font-black flex items-center justify-center">
+                                  {idx + 1}
+                                </span>
+                                <span className="text-xs font-black text-gray-900 uppercase tracking-tight truncate">
+                                  {round.roundName}
+                                </span>
+                              </div>
+                              <div className="text-[10px] font-bold text-teal-600 uppercase italic">
+                                {round.roundStatus}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 📱 MOBILE DASHBOARD (md and below) */}
+      <div className="lg:hidden px-6 py-10 space-y-8 bg-white min-h-screen">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-4xl font-black text-gray-900 tracking-tight">
+              Hi, {user?.name?.split(" ")[0]}
+            </h1>
+            <p className="text-xs font-bold text-teal-600 uppercase tracking-widest mt-1">
+              Dashboard Active
+            </p>
+          </div>
+          <div className="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center border-2 border-slate-50">
+            <User className="text-gray-400" />
+          </div>
+        </div>
+
+        {/* Mobile Quick Stats */}
+        <div className="grid grid-cols-3 gap-3">
+          {[
+            { val: appliedCount, label: "Applied", color: "bg-blue-500" },
+            { val: shortlistedCount, label: "Picked", color: "bg-teal-500" },
+            { val: rejectedCount, label: "Closed", color: "bg-slate-400" },
+          ].map((s) => (
+            <div
+              key={s.label}
+              className="bg-slate-50 p-4 rounded-3xl text-center border border-slate-100"
+            >
+              <p className="text-2xl font-black text-gray-900">{s.val}</p>
+              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter mt-1">
+                {s.label}
+              </p>
+            </div>
+          ))}
+        </div>
+
+        {/* Mobile Action Card - Resume */}
+        <div className="bg-[#0b1c33] rounded-[2.5rem] p-8 text-white relative overflow-hidden shadow-2xl">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-teal-500/20 rounded-full -mr-16 -mt-16 blur-2xl" />
+          <div className="relative z-10 flex flex-col items-center text-center space-y-4">
+            <div className="w-12 h-12 rounded-xl bg-teal-500 flex items-center justify-center shadow-lg">
+              <FileText className="w-6 h-6 text-white" />
+            </div>
+            <h3 className="text-xl font-black">Manage Resume</h3>
+            <p className="text-xs text-gray-400 font-medium">
+              Keep your credentials updated for better opportunities.
+            </p>
+
+            <div className="w-full pt-4 flex flex-col gap-3">
+              {resumeUrl && (
+                <a
+                  href={resumeUrl}
+                  target="_blank"
+                  className="w-full py-4 bg-white/10 rounded-2xl font-bold text-sm border border-white/10"
+                >
+                  View Resume
+                </a>
+              )}
+              <label className="w-full py-4 bg-teal-500 rounded-2xl font-black text-sm flex items-center justify-center gap-2">
+                <Upload className="w-4 h-4" />{" "}
+                {uploading ? "Wait..." : "Update Resume"}
+                <input
+                  type="file"
+                  hidden
+                  accept=".pdf,.doc,.docx"
+                  onChange={(e) => handleResumeUpload(e.target.files[0])}
+                  disabled={uploading}
+                />
+              </label>
             </div>
           </div>
         </div>
 
-        {/* Application Status */}
-        <div className="relative bg-white/80 backdrop-blur-xl border-2 border-white rounded-3xl p-8 shadow-2xl hover:shadow-blue-200/50 transition-all duration-500">
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-indigo-500/5 rounded-3xl opacity-0 hover:opacity-100 transition-opacity duration-500"></div>
-          
-          <div className="relative">
-            <div className="flex items-center gap-4 mb-8">
-              <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl blur opacity-50"></div>
-                <div className="relative p-3 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl shadow-lg">
-                  <Briefcase className="w-6 h-6 text-white" />
-                </div>
-              </div>
-              <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                Your Applications
-              </h2>
+        {/* Mobile Feed: Applications */}
+        <div className="space-y-6">
+          <h3 className="text-2xl font-black text-gray-900 px-2 tracking-tight">
+            Active Applications
+          </h3>
+
+          {candidates.length === 0 ? (
+            <div className="bg-slate-50 rounded-3xl p-10 text-center border-2 border-dashed border-slate-200">
+              <p className="text-sm font-bold text-gray-400 italic">
+                No applications found.
+              </p>
             </div>
-
-            {!candidates || candidates.length === 0 ? (
-              <div className="text-center py-20">
-                <div className="relative inline-block mb-6">
-                  <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full blur-xl opacity-20"></div>
-                  <div className="relative p-8 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-3xl">
-                    <Briefcase className="text-blue-500" size={64} />
-                  </div>
-                </div>
-                <p className="text-gray-700 text-xl font-bold mb-2">No Applications Yet</p>
-                <p className="text-gray-500">Start your journey by applying to exciting opportunities</p>
-              </div>
-            ) : (
-              <div className="space-y-8">
-                {candidates.map((candidate, index) => (
-                  <div key={candidate._id || index} className="group/app">
-                    <div className="relative overflow-hidden p-6 bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 rounded-2xl border-2 border-blue-100 hover:border-blue-300 transition-all duration-300 hover:shadow-lg">
-                      <div className="absolute inset-0 bg-gradient-to-r from-blue-600/5 to-indigo-600/5 translate-y-full group-hover/app:translate-y-0 transition-transform duration-500"></div>
-                      
-                      <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-6">
-                        <div className="flex-1">
-                          <h3 className="font-bold text-gray-900 text-2xl mb-3 flex items-center gap-2">
-                            <div className="w-2 h-2 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full animate-pulse"></div>
-                            {candidate.position}
-                          </h3>
-                          <p className="text-sm text-gray-600 flex items-center gap-2 font-medium">
-                            <Calendar className="w-4 h-4 text-blue-600" />
-                            Applied {new Date(candidate.appliedDate).toLocaleDateString('en-US', { 
-                              year: 'numeric', 
-                              month: 'long', 
-                              day: 'numeric' 
-                            })}
-                          </p>
-                        </div>
-
-                        <StatusBadge status={candidate.status} />
+          ) : (
+            <div className="space-y-4">
+              {candidates.map((app) => (
+                <div
+                  key={app._id}
+                  className="bg-white border-2 border-slate-50 rounded-[2rem] p-6 shadow-xl shadow-gray-100 space-y-4"
+                >
+                  <div className="flex justify-between items-start gap-4">
+                    <div className="min-w-0">
+                      <h4 className="text-lg font-black text-gray-900 truncate tracking-tight">
+                        {app.job?.title || app.position}
+                      </h4>
+                      <p className="text-sm font-bold text-teal-600 truncate">
+                        {app.job?.company || "Hiring Co"}
+                      </p>
+                    </div>
+                    <div className="shrink-0">
+                      <div
+                        className={`p-2 rounded-xl ${
+                          app.status === "APPLIED"
+                            ? "bg-blue-50 text-blue-600"
+                            : "bg-teal-50 text-teal-600"
+                        }`}
+                      >
+                        <Clock className="w-5 h-5" />
                       </div>
                     </div>
-
-                    {candidate.interviewRounds?.length > 0 && (
-                      <div className="mt-6 ml-4 pl-6 border-l-4 border-gradient-to-b from-blue-300 to-indigo-300">
-                        <h3 className="font-bold text-gray-900 mb-5 flex items-center gap-3 text-lg">
-                          <Clock className="w-6 h-6 text-blue-600" />
-                          Interview Journey
-                        </h3>
-                        <div className="space-y-4">
-                          {candidate.interviewRounds.map((round, roundIndex) => (
-                            <div
-                              key={roundIndex}
-                              className="group/round relative overflow-hidden flex items-center justify-between p-5 bg-white border-2 border-gray-200 rounded-xl hover:border-indigo-300 hover:shadow-md transition-all duration-300"
-                            >
-                              <div className="absolute inset-0 bg-gradient-to-r from-indigo-50 to-purple-50 opacity-0 group-hover/round:opacity-100 transition-opacity duration-300"></div>
-                              <div className="relative flex items-center gap-4">
-                                <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white font-bold text-lg shadow-lg">
-                                  {roundIndex + 1}
-                                </div>
-                                <span className="font-bold text-gray-900 text-lg">{round.roundName}</span>
-                              </div>
-                              <span className="relative px-5 py-2 bg-gradient-to-r from-gray-50 to-slate-50 text-gray-700 rounded-xl text-sm font-bold border-2 border-gray-200 shadow-sm">
-                                {round.roundStatus}
-                              </span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
                   </div>
-                ))}
-              </div>
-            )}
-          </div>
+
+                  <div className="flex items-center justify-between pt-4 border-t border-slate-50">
+                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                      Status:{" "}
+                      <span className="text-gray-900">{app.status}</span>
+                    </p>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase">
+                      {new Date(app.appliedDate).toLocaleDateString()}
+                    </p>
+                  </div>
+
+                  {app.interviewRounds?.length > 0 && (
+                    <div className="bg-slate-50 rounded-2xl p-4 flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="w-6 h-6 rounded-lg bg-[#0b1c33] text-white flex items-center justify-center text-[10px] font-black">
+                          {app.interviewRounds.length}
+                        </span>
+                        <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">
+                          Rounds Active
+                        </span>
+                      </div>
+                      <div className="text-teal-600 text-xs font-black uppercase tracking-tighter">
+                        View Details
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
@@ -451,22 +594,16 @@ export default function UserDashboard() {
 
 function StatCard({ title, value, icon: Icon, gradient, glowColor }) {
   return (
-    <div className="group relative">
-      <div className={`absolute inset-0 bg-gradient-to-r ${gradient} rounded-3xl blur-lg opacity-30 group-hover:opacity-60 transition-opacity duration-500`}></div>
-      
-      <div className="relative bg-white/90 backdrop-blur-xl rounded-3xl p-7 border-2 border-white shadow-2xl hover:shadow-purple-200/50 transition-all duration-500 hover:-translate-y-3 overflow-hidden">
-        <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${gradient} rounded-full blur-3xl opacity-10 group-hover:opacity-20 transition-opacity duration-500`}></div>
-        
-        <div className="relative">
-          <div className="relative inline-block mb-5">
-            <div className={`absolute inset-0 bg-gradient-to-br ${gradient} rounded-2xl blur opacity-50`}></div>
-            <div className={`relative p-3.5 rounded-2xl bg-gradient-to-br ${gradient} shadow-xl group-hover:scale-110 transition-transform duration-500`}>
-              <Icon className="text-white" size={28} />
-            </div>
-          </div>
-          
-          <p className="text-sm text-gray-600 font-bold uppercase tracking-wide mb-2">{title}</p>
-          <p className={`text-5xl font-extrabold bg-gradient-to-r ${gradient} bg-clip-text text-transparent`}>{value}</p>
+    <div className="group relative bg-white rounded-2xl p-6 border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 overflow-hidden">
+      <div
+        className={`absolute inset-0 bg-gradient-to-br ${gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-300`}
+      ></div>
+
+      <div className="relative">
+        <div
+          className={`inline-flex p-2.5 rounded-xl bg-gradient-to-br ${gradient} mb-4 shadow-sm`}
+        >
+          <Icon className="text-white" size={20} />
         </div>
       </div>
     </div>
@@ -530,14 +667,11 @@ function StatusBadge({ status }) {
   const StatusIcon = config.icon;
 
   return (
-    <div className="relative group/badge">
-      <div className={`absolute inset-0 bg-gradient-to-r ${config.gradient} rounded-2xl blur opacity-30 group-hover/badge:opacity-50 transition-opacity`}></div>
-      <span
-        className={`relative inline-flex items-center gap-3 px-6 py-3 rounded-2xl text-sm font-bold border-2 ${config.border} bg-gradient-to-r ${config.bg} ${config.text} shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5`}
-      >
-        <StatusIcon className="w-5 h-5" />
-        {status.replace(/_/g, ' ')}
-      </span>
-    </div>
+    <span
+      className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold border-2 ${config.color} shadow-sm`}
+    >
+      <StatusIcon className="w-4 h-4" />
+      {status.replace(/_/g, " ")}
+    </span>
   );
 }

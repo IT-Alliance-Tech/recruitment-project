@@ -7,12 +7,9 @@ import CTASection from "@/components/Homepage/CTASection";
 import Header from "@/components/Homepage/Header";
 import Footer from "@/components/Homepage/Footer";
 
-
 export default function Home() {
   return (
     <>
-      <Header />
-  
       <HeroSection />
       <FeaturesSection />
       <WhyChooseUsSection />

@@ -118,160 +118,285 @@ export default function Dashboard() {
   /* ================= UI ================= */
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
-      {/* HEADER */}
-      <div className="bg-white border-b sticky top-0 z-50 shadow-sm">
-        <div className="max-w-7xl mx-auto px-6 py-6 flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold text-slate-900">
-              Admin Dashboard
+    <div className="min-h-screen bg-[#f8fafc]">
+      {/* 💻 DESKTOP VIEW (lg and up) */}
+      <div className="hidden lg:block">
+        {/* Top Header */}
+        <div className="bg-[#0b1c33] px-12 py-10 flex justify-between items-center text-white">
+          <div className="space-y-1">
+            <span className="text-[10px] font-black text-teal-400 uppercase tracking-[0.3em]">
+              Executive Portal
+            </span>
+            <h1 className="text-4xl font-black tracking-tighter">
+              Recruiter Command
             </h1>
-            <p className="text-sm text-slate-600 mt-1">
-              Recruitment pipeline overview
-            </p>
           </div>
-
           <button
             onClick={handleLogout}
-            className="flex items-center gap-2 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-sm font-medium transition-colors"
+            className="px-8 py-4 bg-teal-500 hover:bg-teal-600 text-white rounded-[2rem] font-black text-sm uppercase tracking-widest transition-all shadow-xl shadow-teal-500/20 active:scale-95 flex items-center gap-2"
           >
-            <LogOut size={16} />
-            Logout
+            <LogOut size={18} /> Exit System
           </button>
+        </div>
+
+        <div className="max-w-[1400px] mx-auto px-12 py-12">
+          {/* Stats Visualization */}
+          <div className="grid grid-cols-5 gap-6 mb-12">
+            {stats.map((stat, i) => (
+              <div
+                key={i}
+                className="bg-white rounded-[2.5rem] p-8 border-2 border-slate-50 shadow-xl shadow-gray-200/50 hover:-translate-y-1 transition-all"
+              >
+                <div className="w-12 h-12 rounded-xl bg-slate-50 flex items-center justify-center text-teal-500 mb-6">
+                  <stat.icon size={24} />
+                </div>
+                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">
+                  {stat.label}
+                </p>
+                <p className="text-4xl font-black text-gray-900">
+                  {stat.value}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          {/* Quick Strategic Actions */}
+          <div className="grid grid-cols-2 gap-8 mb-12">
+            <Link
+              href="/pipeline"
+              className="group bg-white rounded-[3rem] p-12 border-2 border-slate-50 hover:border-teal-500 shadow-2xl shadow-gray-200/50 transition-all flex items-center gap-10"
+            >
+              <div className="w-24 h-24 rounded-[2rem] bg-teal-500 flex items-center justify-center text-white shadow-2xl shadow-teal-500/20 group-hover:scale-110 transition-transform">
+                <Users size={40} />
+              </div>
+              <div className="flex-1 space-y-2">
+                <h3 className="text-3xl font-black text-gray-900">
+                  Talent Pipeline
+                </h3>
+                <p className="text-gray-400 font-medium leading-relaxed">
+                  Examine and manage incoming applications across all active
+                  stages.
+                </p>
+                <p className="text-xs font-black text-teal-600 uppercase tracking-widest pt-2 flex items-center gap-2">
+                  Monitor Flux <ArrowRight size={14} />
+                </p>
+              </div>
+            </Link>
+
+            <Link
+              href="/dashboard/jobs"
+              className="group bg-[#0b1c33] rounded-[3rem] p-12 shadow-2xl shadow-blue-900/20 transition-all flex items-center gap-10"
+            >
+              <div className="w-24 h-24 rounded-[2rem] bg-indigo-500 flex items-center justify-center text-white shadow-2xl shadow-indigo-500/20 group-hover:scale-110 transition-transform">
+                <Briefcase size={40} />
+              </div>
+              <div className="flex-1 space-y-2 text-white">
+                <h3 className="text-3xl font-black text-white">
+                  Role Management
+                </h3>
+                <p className="text-gray-400 font-medium leading-relaxed">
+                  Broadcast new opportunities or optimize existing professional
+                  roles.
+                </p>
+                <p className="text-xs font-black text-teal-400 uppercase tracking-widest pt-2 flex items-center gap-2">
+                  Strategic Deployment <ArrowRight size={14} />
+                </p>
+              </div>
+            </Link>
+          </div>
+
+          {/* Influx Timeline */}
+          <div className="bg-white rounded-[3rem] border-2 border-slate-50 shadow-xl shadow-gray-200/50 overflow-hidden">
+            <div className="px-10 py-8 border-b-2 border-slate-50 flex justify-between items-center bg-slate-50/50">
+              <div>
+                <h2 className="text-2xl font-black text-gray-900">
+                  Live Intake
+                </h2>
+                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                  Real-time candidate synchronization
+                </p>
+              </div>
+              <div className="px-5 py-2 bg-teal-500 text-white rounded-full text-[10px] font-black uppercase tracking-widest animate-pulse">
+                Live Tracking
+              </div>
+            </div>
+
+            {loading ? (
+              <div className="p-20 text-center text-gray-400 font-black uppercase tracking-[0.3em]">
+                Syncing Data...
+              </div>
+            ) : candidates.length === 0 ? (
+              <div className="p-20 text-center text-gray-300 font-black uppercase tracking-widest">
+                Zero Candidates In Matrix
+              </div>
+            ) : (
+              <div className="divide-y-2 divide-slate-50">
+                {candidates.slice(0, 8).map((c) => (
+                  <div
+                    key={c._id}
+                    className="px-10 py-6 hover:bg-slate-50 transition-all flex items-center justify-between group"
+                  >
+                    <div className="flex items-center gap-6">
+                      <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center font-black text-gray-400 group-hover:bg-teal-500 group-hover:text-white transition-all">
+                        {(c.fullName || c.user?.name || "?").charAt(0)}
+                      </div>
+                      <div>
+                        <p className="font-black text-gray-900 text-lg uppercase tracking-tight">
+                          {c.fullName || c.user?.name}
+                        </p>
+                        <p className="text-[10px] font-black text-teal-600 uppercase tracking-widest">
+                          {c.position}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-8">
+                      <span
+                        className={`px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest border-2 ${getStatusColor(
+                          c.status
+                        )}`}
+                      >
+                        {c.status}
+                      </span>
+                      <ArrowRight
+                        size={20}
+                        className="text-slate-200 group-hover:text-teal-500 group-hover:translate-x-1 transition-all"
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        {/* STATS */}
-        {/* UI improvement only – no logic change */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-10">
-          {stats.map((stat, i) => {
-            const statColors = {
-              0: 'bg-blue-50 border-blue-200 text-blue-600',
-              1: 'bg-emerald-50 border-emerald-200 text-emerald-600',
-              2: 'bg-amber-50 border-amber-200 text-amber-600',
-              3: 'bg-green-50 border-green-200 text-green-600',
-              4: 'bg-red-50 border-red-200 text-red-600',
-            };
-            
-            return (
+      {/* 📱 MOBILE VIEW (md and below) */}
+      <div className="lg:hidden min-h-screen">
+        <div className="bg-[#0b1c33] px-6 pt-16 pb-32 rounded-b-[4rem] relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-teal-500/10 rounded-full -mr-32 -mt-32 blur-3xl" />
+
+          <div className="relative z-10 flex justify-between items-center">
+            <div className="space-y-1">
+              <span className="text-[8px] font-black text-teal-400 uppercase tracking-[0.3em]">
+                Command Center
+              </span>
+              <h1 className="text-4xl font-black text-white tracking-tighter uppercase">
+                Admin Portal
+              </h1>
+            </div>
+            <button
+              onClick={handleLogout}
+              className="w-12 h-12 flex items-center justify-center bg-white/10 text-white rounded-2xl border border-white/20 active:bg-white/20 transition-all"
+            >
+              <LogOut size={20} />
+            </button>
+          </div>
+        </div>
+
+        <div className="px-6 -mt-20 space-y-10 pb-32 relative z-20">
+          {/* Mobile Stats Grid */}
+          <div className="grid grid-cols-2 gap-4">
+            {stats.map((stat, i) => (
               <div
                 key={i}
-                className={`${statColors[i]} border rounded-xl p-6 transition-all hover:shadow-md`}
+                className={`bg-white rounded-[2.5rem] p-6 shadow-2xl shadow-gray-200/50 border border-slate-50 flex flex-col items-center text-center group active:scale-95 transition-all ${
+                  i === 0 ? "col-span-2 py-8" : ""
+                }`}
               >
-                <div className="flex items-start justify-between">
-                  <div>
-                    <p className="text-xs font-semibold text-slate-600 uppercase tracking-wide mb-2">
-                      {stat.label}
-                    </p>
-                    <p className="text-3xl font-bold text-slate-900">
-                      {stat.value}
-                    </p>
-                  </div>
-                  <div className={`${statColors[i].split(' ')[0]} p-3 rounded-lg`}>
-                    <stat.icon className={statColors[i].split(' ')[2]} size={20} />
-                  </div>
+                <div
+                  className={`rounded-xl bg-slate-50 flex items-center justify-center text-teal-500 font-black shadow-sm ${
+                    i === 0 ? "w-14 h-14 mb-4" : "w-10 h-10 mb-3"
+                  }`}
+                >
+                  <stat.icon size={i === 0 ? 24 : 20} />
+                </div>
+                <div className="space-y-1">
+                  <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest leading-none">
+                    {stat.label}
+                  </p>
+                  <p
+                    className={`${
+                      i === 0 ? "text-5xl" : "text-3xl"
+                    } font-black text-gray-900 leading-none`}
+                  >
+                    {stat.value}
+                  </p>
                 </div>
               </div>
-            );
-          })}
-        </div>
-
-        {/* QUICK ACTIONS */}
-        {/* UI improvement only – no logic change */}
-        <div className="grid md:grid-cols-2 gap-6 mb-10">
-          <Link
-            href="/pipeline"
-            className="group bg-white border border-slate-200 rounded-xl p-8 hover:shadow-lg hover:border-blue-300 transition-all"
-          >
-            <div className="bg-blue-100 w-12 h-12 rounded-lg flex items-center justify-center mb-4 group-hover:bg-blue-200 transition-colors">
-              <Users className="text-blue-600" size={24} />
-            </div>
-            <h3 className="text-lg font-bold text-slate-900 mb-2">View Candidates</h3>
-            <p className="text-sm text-slate-600">
-              Manage and screen candidates through the pipeline
-            </p>
-            <div className="flex items-center gap-2 mt-4 text-blue-600 font-medium text-sm">
-              Go to Pipeline <ArrowRight size={16} />
-            </div>
-          </Link>
-
-          <Link
-            href="/dashboard/jobs"
-            className="group bg-white border border-slate-200 rounded-xl p-8 hover:shadow-lg hover:border-emerald-300 transition-all"
-          >
-            <div className="bg-emerald-100 w-12 h-12 rounded-lg flex items-center justify-center mb-4 group-hover:bg-emerald-200 transition-colors">
-              <Briefcase className="text-emerald-600" size={24} />
-            </div>
-            <h3 className="text-lg font-bold text-slate-900 mb-2">Manage Jobs</h3>
-            <p className="text-sm text-slate-600">
-              Create, edit, and publish job openings
-            </p>
-            <div className="flex items-center gap-2 mt-4 text-emerald-600 font-medium text-sm">
-              Go to Jobs <ArrowRight size={16} />
-            </div>
-          </Link>
-        </div>
-
-        {/* RECENT CANDIDATES */}
-        {/* UI improvement only – no logic change */}
-        <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
-          <div className="border-b border-slate-200 px-6 py-5">
-            <h2 className="text-xl font-bold text-slate-900">Recent Candidates</h2>
-            <p className="text-sm text-slate-600 mt-1">Latest applicants and their status</p>
+            ))}
           </div>
 
-          {loading ? (
-            <div className="p-12 text-center">
-              <div className="animate-pulse">
-                <div className="h-4 bg-slate-200 rounded w-1/4 mx-auto mb-4"></div>
-                <p className="text-slate-500">Loading candidates...</p>
+          {/* Mobile Actions */}
+          <div className="grid grid-cols-2 gap-6">
+            <Link
+              href="/pipeline"
+              className="bg-teal-500 p-8 rounded-[2.5rem] text-white shadow-2xl shadow-teal-500/30 active:scale-95 transition-all flex flex-col items-center text-center"
+            >
+              <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center mb-4">
+                <Users size={24} />
               </div>
-            </div>
-          ) : candidates.length === 0 ? (
-            <div className="p-12 text-center">
-              <Users className="mx-auto mb-4 text-slate-300" size={48} />
-              <p className="text-slate-600 font-medium">No candidates found</p>
-              <p className="text-sm text-slate-500 mt-1">Candidates will appear here once they apply</p>
-            </div>
-          ) : (
-            <div className="divide-y divide-slate-200">
-              {candidates.slice(0, 8).map((c) => (
-                <div
-                  key={c._id}
-                  className="px-6 py-4 hover:bg-slate-50 transition-colors flex justify-between items-center"
-                >
-                  <div className="flex-1">
-                    <p className="font-semibold text-slate-900">
-                      {c.fullName || c.user?.name}
-                    </p>
-                    <p className="text-sm text-slate-600 mt-1">
-                      {c.position}
-                    </p>
-                  </div>
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] leading-tight">
+                Talent <br /> Pipeline
+              </p>
+            </Link>
+            <Link
+              href="/dashboard/jobs"
+              className="bg-[#0b1c33] p-8 rounded-[2.5rem] text-white shadow-2xl shadow-blue-900/30 active:scale-95 transition-all flex flex-col items-center text-center border border-white/10"
+            >
+              <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center mb-4">
+                <Briefcase size={24} />
+              </div>
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] leading-tight">
+                Manage <br /> Jobs
+              </p>
+            </Link>
+          </div>
 
-                  <span
-                    className={`px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap ml-4 ${getStatusColor(
-                      c.status
-                    )}`}
-                  >
-                    {c.status}
-                  </span>
+          {/* Recent Candidates List */}
+          <div className="space-y-6">
+            <h2 className="text-xl font-black text-gray-900 px-4 tracking-tight uppercase">
+              Recent Influx
+            </h2>
+            <div className="space-y-4">
+              {loading ? (
+                <div className="p-10 text-center text-[10px] font-black text-gray-300 uppercase animate-pulse">
+                  Syncing...
                 </div>
-              ))}
+              ) : candidates.length === 0 ? (
+                <div className="p-10 text-center text-xs font-black text-gray-200 uppercase">
+                  Matrix Empty
+                </div>
+              ) : (
+                candidates.slice(0, 5).map((c) => (
+                  <div
+                    key={c._id}
+                    className="p-6 bg-white rounded-[2rem] border-2 border-slate-50 shadow-xl shadow-gray-200/50 flex items-center justify-between group active:border-teal-500 transition-all"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-xl bg-slate-50 flex items-center justify-center font-black text-teal-500 shadow-sm border border-slate-100">
+                        <Users size={20} />
+                      </div>
+                      <div className="space-y-0.5">
+                        <p className="text-sm font-black text-gray-900 uppercase tracking-tight line-clamp-1">
+                          {c.fullName || c.user?.name}
+                        </p>
+                        <p className="text-[10px] font-black text-teal-600 uppercase tracking-widest">
+                          {c.position}
+                        </p>
+                      </div>
+                    </div>
+                    <span
+                      className={`px-3 py-1.5 rounded-lg text-[8px] font-black uppercase tracking-widest border-2 italic ${getStatusColor(
+                        c.status
+                      )}`}
+                    >
+                      {c.status}
+                    </span>
+                  </div>
+                ))
+              )}
             </div>
-          )}
-
-          {candidates.length > 8 && (
-            <div className="border-t border-slate-200 px-6 py-4">
-              <Link
-                href="/pipeline"
-                className="text-blue-600 hover:text-blue-700 font-medium text-sm inline-flex items-center gap-2"
-              >
-                View all candidates <ArrowRight size={16} />
-              </Link>
-            </div>
-          )}
+          </div>
         </div>
       </div>
     </div>

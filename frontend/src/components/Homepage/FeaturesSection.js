@@ -1,6 +1,13 @@
 "use client";
 
-import { Users, FileText, Calendar, BarChart3, Zap, Shield } from "lucide-react";
+import {
+  Users,
+  FileText,
+  Calendar,
+  BarChart3,
+  Zap,
+  Shield,
+} from "lucide-react";
 
 const features = [
   {
@@ -43,48 +50,70 @@ const features = [
 
 export default function FeaturesSection() {
   return (
-    <section className="py-16 md:py-20 bg-[#f8fafc]">
+    <section className="py-16 md:py-24 bg-[#f8fafc]">
       <div className="max-w-7xl mx-auto px-6">
-
-        {/* Header */}
-        <div className="text-center max-w-3xl mx-auto mb-12 md:mb-14">
-          <span className="inline-block px-4 py-1.5 rounded-full bg-teal-100 text-teal-600 text-sm font-medium mb-4">
-            Features
+        {/* Header (Shared but responsive padding) */}
+        <div className="text-center max-w-3xl mx-auto mb-16 md:mb-20">
+          <span className="inline-block px-4 py-1.5 rounded-full bg-teal-100 text-teal-600 text-sm font-bold uppercase tracking-widest mb-4">
+            Our Features
           </span>
 
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
+          <h2 className="text-3xl md:text-5xl font-black text-gray-900 mb-6 leading-tight">
             Everything You Need to{" "}
             <span className="text-teal-500">Recruit Efficiently</span>
           </h2>
 
-          <p className="text-lg text-gray-500">
+          <p className="text-lg md:text-xl text-gray-500 leading-relaxed font-medium">
             End-to-end recruitment tools designed to simplify candidate hiring,
             interview management, and client coordination.
           </p>
         </div>
 
-        {/* Cards */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {/* 💻 DESKTOP GRID (lg and up) */}
+        <div className="hidden lg:grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {features.map((feature) => (
             <div
               key={feature.title}
-              className="bg-white rounded-2xl p-8 border border-gray-200 hover:border-teal-300 transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
+              className="group bg-white rounded-[2rem] p-8 border border-gray-100 hover:border-teal-500/30 transition-all duration-500 hover:shadow-2xl hover:shadow-teal-500/10 hover:-translate-y-2 relative overflow-hidden"
             >
-              <div className="w-14 h-14 rounded-2xl bg-teal-500 flex items-center justify-center mb-6 shadow-lg">
-                <feature.icon className="w-7 h-7 text-white" />
+              <div className="absolute top-0 right-0 w-32 h-32 bg-teal-500/5 rounded-bl-[100px] -mr-10 -mt-10 group-hover:scale-110 transition-transform" />
+
+              <div className="w-16 h-16 rounded-2xl bg-teal-500 flex items-center justify-center mb-8 shadow-lg shadow-teal-500/30 group-hover:rotate-6 transition-transform">
+                <feature.icon className="w-8 h-8 text-white" />
               </div>
 
-              <h3 className="text-xl font-semibold text-gray-900 mb-3">
+              <h3 className="text-2xl font-bold text-gray-900 mb-4 group-hover:text-teal-600 transition-colors">
                 {feature.title}
               </h3>
 
-              <p className="text-gray-500 leading-relaxed">
+              <p className="text-gray-500 leading-relaxed font-medium">
                 {feature.description}
               </p>
             </div>
           ))}
         </div>
 
+        {/* 📱 MOBILE VIEW (md and below) */}
+        <div className="lg:hidden space-y-6 px-2">
+          {features.map((feature) => (
+            <div
+              key={feature.title}
+              className="bg-white rounded-3xl p-6 border border-gray-200 shadow-sm active:scale-[0.98] transition-all flex flex-col items-center text-center"
+            >
+              <div className="w-14 h-14 rounded-2xl bg-teal-500 flex items-center justify-center mb-6 shadow-md">
+                <feature.icon className="w-7 h-7 text-white" />
+              </div>
+
+              <h3 className="text-xl font-bold text-gray-900 mb-3">
+                {feature.title}
+              </h3>
+
+              <p className="text-sm text-gray-500 leading-relaxed">
+                {feature.description}
+              </p>
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );

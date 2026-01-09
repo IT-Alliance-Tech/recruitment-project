@@ -1,5 +1,7 @@
 const Candidate = require("../models/Candidate");
 const Job = require("../models/Job");
+const User = require("../models/User");
+const { supabase } = require("../config/supabase");
 
 /**
  * ===============================
@@ -36,15 +38,52 @@ exports.getMyCandidateProfile = async (req, res) => {
   }
 };
 
-// CREATE or UPDATE candidate profile
+// CREATE or UPDATE candidate profile (acts as global profile setup)
 exports.createCandidate = async (req, res) => {
   try {
     const { fullName, email, phone, position } = req.body;
-    const resumeUrl = req.file ? req.file.path : null;
+    let resumeUrl = null;
 
-    let candidate = await Candidate.findOne({ user: req.user._id });
+    // UPLOAD TO SUPABASE IF FILE EXISTS
+    if (req.file) {
+      const fileName = `resumes/${req.user._id}-${Date.now()}-${
+        req.file.originalname
+      }`;
 
-    // UPDATE EXISTING CANDIDATE
+      const { error: uploadError } = await supabase.storage
+        .from("resumes")
+        .upload(fileName, req.file.buffer, {
+          contentType: req.file.mimetype,
+          upsert: true,
+        });
+
+      if (uploadError) {
+        console.error("Supabase upload error:", uploadError);
+        return res.status(500).json({
+          success: false,
+          message: "Failed to upload resume to storage",
+        });
+      }
+
+      const { data } = supabase.storage.from("resumes").getPublicUrl(fileName);
+
+      resumeUrl = data.publicUrl;
+    }
+
+    // ✅ SYNC WITH USER MODEL (Source of truth for profile)
+    const user = await User.findById(req.user._id);
+    if (user) {
+      if (fullName) user.name = fullName;
+      if (phone) user.phone = phone;
+      if (resumeUrl) user.resumeUrl = resumeUrl;
+      await user.save();
+    }
+
+    // Update LATEST candidate record or create new one
+    let candidate = await Candidate.findOne({ user: req.user._id }).sort({
+      createdAt: -1,
+    });
+
     if (candidate) {
       if (fullName) candidate.fullName = fullName;
       if (email) candidate.email = email;
@@ -56,17 +95,24 @@ exports.createCandidate = async (req, res) => {
 
       return res.status(200).json({
         success: true,
-        message: "Candidate updated",
+        message: "Profile updated successfully",
         candidate,
       });
     }
 
-    // CREATE NEW CANDIDATE
+    // CREATE NEW CANDIDATE (Initial profile setup)
+    if (!resumeUrl) {
+      return res.status(400).json({
+        success: false,
+        message: "Resume is required for initial profile setup",
+      });
+    }
+
     candidate = await Candidate.create({
       user: req.user._id,
-      fullName,
-      email,
-      phone,
+      fullName: fullName || user?.name,
+      email: email || user?.email,
+      phone: phone || user?.phone,
       position,
       resumeUrl,
       status: "APPLIED",
@@ -74,14 +120,15 @@ exports.createCandidate = async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: "Candidate created",
+      message: "Profile created successfully",
       candidate,
     });
   } catch (error) {
-    console.error(error);
+    console.error("Candidate creation error:", error);
     res.status(500).json({
       success: false,
       message: "Failed to create/update candidate",
+      error: error.message,
     });
   }
 };
@@ -91,11 +138,36 @@ exports.applyJob = async (req, res) => {
   try {
     const { jobId } = req.params;
 
-    const candidate = await Candidate.findOne({ user: req.user._id });
-    if (!candidate) {
+    // 1. CHECK FOR DUPLICATE APPLICATION
+    const existingApp = await Candidate.findOne({
+      user: req.user._id,
+      job: jobId,
+    });
+
+    if (existingApp) {
       return res.status(400).json({
         success: false,
-        message: "Complete profile before applying",
+        message: "You have already applied for this job",
+      });
+    }
+
+    // 2. GET USER PROFILE DATA (Source of Truth)
+    const user = await User.findById(req.user._id);
+
+    // Fallback to latest candidate record if user model is missing data
+    const latestCandidate = await Candidate.findOne({
+      user: req.user._id,
+    }).sort({ createdAt: -1 });
+
+    const fullName = user?.name || latestCandidate?.fullName;
+    const email = user?.email || latestCandidate?.email;
+    const phone = user?.phone || latestCandidate?.phone;
+    const resumeUrl = user?.resumeUrl || latestCandidate?.resumeUrl;
+
+    if (!resumeUrl) {
+      return res.status(400).json({
+        success: false,
+        message: "Upload your resume before applying",
       });
     }
 
@@ -107,20 +179,29 @@ exports.applyJob = async (req, res) => {
       });
     }
 
-    candidate.job = jobId;
-    candidate.status = "APPLIED";
-    await candidate.save();
+    // 3. CREATE NEW APPLICATION RECORD
+    const newApplication = await Candidate.create({
+      user: req.user._id,
+      job: jobId,
+      fullName,
+      email,
+      phone,
+      position: latestCandidate?.position || "Manual Application",
+      resumeUrl,
+      status: "APPLIED",
+    });
 
-    res.status(200).json({
+    res.status(201).json({
       success: true,
       message: "Job applied successfully",
-      candidate,
+      candidate: newApplication,
     });
   } catch (error) {
-    console.error(error);
+    console.error("Apply job error:", error);
     res.status(500).json({
       success: false,
       message: "Failed to apply job",
+      error: error.message,
     });
   }
 };
